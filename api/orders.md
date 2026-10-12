@@ -14,7 +14,7 @@ All customer endpoints require authentication.
 
 ---
 
-# 2. Create Order
+## 2. Create Order
 
 ```http
 POST /api/v1/orders
@@ -41,7 +41,7 @@ The backend calculates these values.
 
 ---
 
-# 3. Order Creation Flow
+## 3. Order Creation Flow
 
 ```text
 POST /orders
@@ -82,7 +82,7 @@ Return Order
 
 ---
 
-# 4. Create Order Response
+## 4. Create Order Response
 
 ```json
 {
@@ -116,7 +116,7 @@ Return Order
 
 ---
 
-# 5. Get User Orders
+## 5. Get User Orders
 
 ```http
 GET /api/v1/orders
@@ -138,7 +138,7 @@ GET /api/v1/orders?page=0&size=20&status=DELIVERED
 
 ---
 
-# 6. Get Order Detail
+## 6. Get Order Detail
 
 ```http
 GET /api/v1/orders/{id}
@@ -148,7 +148,7 @@ The backend must verify that the current user owns the order unless the caller h
 
 ---
 
-# 7. Cancel Order
+## 7. Cancel Order
 
 ```http
 POST /api/v1/orders/{id}/cancel
@@ -160,7 +160,7 @@ The frontend must not determine order state transitions.
 
 ---
 
-# 8. Order Status
+## 8. Order Status
 
 Initial statuses:
 
@@ -202,7 +202,7 @@ Actual allowed transitions are enforced by the backend.
 
 ---
 
-# 9. Order Events
+## 9. Order Events
 
 After important state changes, the backend may publish Kafka events.
 
@@ -232,7 +232,7 @@ Order Service
 
 ---
 
-# 10. Inventory Consistency
+## 10. Inventory Consistency
 
 Inventory operations must be handled transactionally.
 

@@ -4,13 +4,13 @@ This document records important architecture decisions made during the developme
 
 ---
 
-# ADR-001 — Multi-Repository Architecture
+## ADR-001 — Multi-Repository Architecture
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 The project contains multiple applications with different responsibilities and technology stacks.
 
@@ -22,7 +22,7 @@ The main components are:
 * Infrastructure
 * Documentation
 
-## Decision
+### Decision
 
 Use separate Git repositories for each major component.
 
@@ -34,7 +34,7 @@ ai-tech-marketplace-infra
 ai-tech-marketplace-docs
 ```
 
-## Reasons
+### Reasons
 
 * Clear separation of responsibilities
 * Independent development
@@ -44,7 +44,7 @@ ai-tech-marketplace-docs
 * Easier repository ownership
 * Easier service versioning
 
-## Consequences
+### Consequences
 
 Advantages:
 
@@ -60,13 +60,13 @@ Disadvantages:
 
 ---
 
-# ADR-002 — Spring Boot for Backend
+## ADR-002 — Spring Boot for Backend
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 The core marketplace requires:
 
@@ -77,11 +77,11 @@ The core marketplace requires:
 * Database access
 * Event-driven communication
 
-## Decision
+### Decision
 
 Use Java with Spring Boot.
 
-## Reasons
+### Reasons
 
 Spring Boot provides mature support for:
 
@@ -94,19 +94,19 @@ Spring Boot provides mature support for:
 * Redis
 * Testing
 
-## Consequences
+### Consequences
 
 The backend will use the Spring ecosystem for core business services.
 
 ---
 
-# ADR-003 — React for Frontend
+## ADR-003 — React for Frontend
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 The application requires:
 
@@ -118,11 +118,11 @@ The application requires:
 * Admin dashboard
 * AI chat
 
-## Decision
+### Decision
 
 Use React with TypeScript.
 
-## Reasons
+### Reasons
 
 * Component-based architecture
 * Large ecosystem
@@ -132,13 +132,13 @@ Use React with TypeScript.
 
 ---
 
-# ADR-004 — PostgreSQL as Primary Database
+## ADR-004 — PostgreSQL as Primary Database
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 Marketplace data requires transactional consistency.
 
@@ -149,11 +149,11 @@ Important operations include:
 * Cart operations
 * User management
 
-## Decision
+### Decision
 
 Use PostgreSQL as the primary transactional database.
 
-## Reasons
+### Reasons
 
 * ACID transactions
 * Strong relational model
@@ -164,13 +164,13 @@ Use PostgreSQL as the primary transactional database.
 
 ---
 
-# ADR-005 — Redis for Cache and Distributed Coordination
+## ADR-005 — Redis for Cache and Distributed Coordination
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 Some data requires low-latency access.
 
@@ -181,7 +181,7 @@ Examples:
 * Temporary data
 * Distributed locks
 
-## Decision
+### Decision
 
 Use Redis for:
 
@@ -193,13 +193,13 @@ Redis will not be the source of truth for transactional data.
 
 ---
 
-# ADR-006 — Kafka for Event-Driven Communication
+## ADR-006 — Kafka for Event-Driven Communication
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 Some operations do not need to block the main request.
 
@@ -210,7 +210,7 @@ Examples:
 * Inventory-related events
 * Other background processing
 
-## Decision
+### Decision
 
 Use Kafka for asynchronous domain events.
 
@@ -224,7 +224,7 @@ InventoryReleased
 ProductUpdated
 ```
 
-## Consequences
+### Consequences
 
 Advantages:
 
@@ -241,13 +241,13 @@ Disadvantages:
 
 ---
 
-# ADR-007 — Python FastAPI for AI Service
+## ADR-007 — Python FastAPI for AI Service
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 AI functionality may require:
 
@@ -258,11 +258,11 @@ AI functionality may require:
 * Recommendation algorithms
 * Machine learning libraries
 
-## Decision
+### Decision
 
 Implement the AI service using Python and FastAPI.
 
-## Reasons
+### Reasons
 
 Python provides a strong ecosystem for:
 
@@ -277,19 +277,19 @@ FastAPI provides a lightweight HTTP API layer.
 
 ---
 
-# ADR-008 — Backend as Business Authority
+## ADR-008 — Backend as Business Authority
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 The frontend and AI service may request marketplace operations.
 
 Transactional operations must remain controlled.
 
-## Decision
+### Decision
 
 The backend is the authoritative service for marketplace business operations.
 
@@ -305,13 +305,13 @@ The frontend and AI service cannot directly modify transactional database tables
 
 ---
 
-# ADR-009 — AI Behind Backend API
+## ADR-009 — AI Behind Backend API
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 The AI service could technically be exposed directly to the frontend.
 
@@ -324,7 +324,7 @@ However, this would create problems around:
 * Business rules
 * Service boundaries
 
-## Decision
+### Decision
 
 The frontend communicates with the backend.
 
@@ -340,7 +340,7 @@ Backend
 AI Service
 ```
 
-## Consequences
+### Consequences
 
 Advantages:
 
@@ -352,13 +352,13 @@ Advantages:
 
 ---
 
-# ADR-010 — PostgreSQL JSONB for Product Specifications
+## ADR-010 — PostgreSQL JSONB for Product Specifications
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 Technology products have different specifications.
 
@@ -387,7 +387,7 @@ Battery
 
 Using a fixed relational table for every possible specification would create unnecessary complexity.
 
-## Decision
+### Decision
 
 Store flexible product specifications using PostgreSQL JSONB initially.
 
@@ -402,7 +402,7 @@ Example:
 }
 ```
 
-## Consequences
+### Consequences
 
 Advantages:
 
@@ -419,13 +419,13 @@ The specification model may be redesigned if search requirements become signific
 
 ---
 
-# ADR-011 — REST API for Synchronous Communication
+## ADR-011 — REST API for Synchronous Communication
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 Frontend-to-backend operations require immediate responses.
 
@@ -436,7 +436,7 @@ Examples:
 * Cart operations
 * Checkout
 
-## Decision
+### Decision
 
 Use REST APIs for synchronous communication.
 
@@ -468,17 +468,17 @@ Kafka
 
 ---
 
-# ADR-012 — JWT Authentication
+## ADR-012 — JWT Authentication
 
-## Status
+### Status
 
 Accepted
 
-## Context
+### Context
 
 The frontend needs authenticated access to protected backend resources.
 
-## Decision
+### Decision
 
 Use JWT-based authentication for the initial implementation.
 
@@ -488,7 +488,7 @@ The access token will be sent using:
 Authorization: Bearer <token>
 ```
 
-## Consequences
+### Consequences
 
 Advantages:
 

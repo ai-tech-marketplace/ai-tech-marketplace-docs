@@ -12,19 +12,19 @@ Base URL:
 
 ---
 
-# 2. Get Products
+## 2. Get Products
 
-## Endpoint
+### Endpoint
 
 ```http
 GET /api/v1/products
 ```
 
-## Authentication
+### Authentication
 
 Public
 
-## Query Parameters
+### Query Parameters
 
 | Parameter  | Required | Description            |
 | ---------- | -------- | ---------------------- |
@@ -43,7 +43,7 @@ Example:
 GET /api/v1/products?page=0&size=20&keyword=laptop&minPrice=20000000&maxPrice=35000000
 ```
 
-## Response
+### Response
 
 ```json
 {
@@ -79,19 +79,19 @@ GET /api/v1/products?page=0&size=20&keyword=laptop&minPrice=20000000&maxPrice=35
 
 ---
 
-# 3. Get Product Detail
+## 3. Get Product Detail
 
-## Endpoint
+### Endpoint
 
 ```http
 GET /api/v1/products/{id}
 ```
 
-## Authentication
+### Authentication
 
 Public
 
-## Response
+### Response
 
 ```json
 {
@@ -132,7 +132,7 @@ Public
 
 ---
 
-# 4. Search Products
+## 4. Search Products
 
 The normal product endpoint supports keyword search.
 
@@ -148,9 +148,9 @@ Advanced semantic search will be handled by the AI service later.
 
 ---
 
-# 5. Categories
+## 5. Categories
 
-## Get Categories
+### Get Categories
 
 ```http
 GET /api/v1/categories
@@ -186,9 +186,9 @@ Response:
 
 ---
 
-# 6. Brands
+## 6. Brands
 
-## Get Brands
+### Get Brands
 
 ```http
 GET /api/v1/brands
@@ -219,11 +219,11 @@ Response:
 
 ---
 
-# 7. Admin Product APIs
+## 7. Admin Product APIs
 
 Admin authentication required.
 
-## Create Product
+### Create Product
 
 ```http
 POST /api/v1/admin/products
@@ -247,13 +247,13 @@ Request:
 }
 ```
 
-## Update Product
+### Update Product
 
 ```http
 PUT /api/v1/admin/products/{id}
 ```
 
-## Delete Product
+### Delete Product
 
 ```http
 DELETE /api/v1/admin/products/{id}
@@ -263,7 +263,7 @@ Deletion should normally be implemented as a soft delete or status change rather
 
 ---
 
-# 8. Product Status
+## 8. Product Status
 
 Initial values:
 
@@ -277,7 +277,7 @@ The backend is responsible for determining valid status transitions.
 
 ---
 
-# 9. Product Ownership
+## 9. Product Ownership
 
 Product data is owned by the backend.
 

@@ -12,7 +12,7 @@ The database stores transactional marketplace data.
 
 ---
 
-# 2. Main Entities
+## 2. Main Entities
 
 The initial database contains:
 
@@ -42,7 +42,7 @@ conversation_messages
 
 ---
 
-# 3. Entity Relationship
+## 3. Entity Relationship
 
 ```text
 users
@@ -73,7 +73,7 @@ products ── inventory
 
 ---
 
-# 4. users
+## 4. users
 
 Stores customer, seller and administrator accounts.
 
@@ -98,7 +98,7 @@ LOCKED
 
 ---
 
-# 5. roles
+## 5. roles
 
 Stores system roles.
 
@@ -117,7 +117,7 @@ ADMIN
 
 ---
 
-# 6. user_roles
+## 6. user_roles
 
 Many-to-many relationship between users and roles.
 
@@ -134,7 +134,7 @@ Primary key:
 
 ---
 
-# 7. categories
+## 7. categories
 
 Product categories.
 
@@ -161,7 +161,7 @@ Tablet
 
 ---
 
-# 8. brands
+## 8. brands
 
 Product brands.
 
@@ -188,7 +188,7 @@ Logitech
 
 ---
 
-# 9. products
+## 9. products
 
 Main product table.
 
@@ -221,7 +221,7 @@ Example `specifications`:
 
 ---
 
-# 10. product_images
+## 10. product_images
 
 Stores product images.
 
@@ -235,7 +235,7 @@ Stores product images.
 
 ---
 
-# 11. inventory
+## 11. inventory
 
 Stores current inventory.
 
@@ -255,7 +255,7 @@ available = quantity - reserved_quantity
 
 ---
 
-# 12. addresses
+## 12. addresses
 
 Customer shipping addresses.
 
@@ -276,7 +276,7 @@ Customer shipping addresses.
 
 ---
 
-# 13. carts
+## 13. carts
 
 One active cart per customer.
 
@@ -289,7 +289,7 @@ One active cart per customer.
 
 ---
 
-# 14. cart_items
+## 14. cart_items
 
 Products inside a cart.
 
@@ -310,7 +310,7 @@ Unique constraint:
 
 ---
 
-# 15. orders
+## 15. orders
 
 Customer orders.
 
@@ -331,7 +331,7 @@ Shipping information is copied into the order so historical orders remain correc
 
 ---
 
-# 16. order_items
+## 16. order_items
 
 Products purchased in an order.
 
@@ -350,7 +350,7 @@ Historical product information is copied into the order item.
 
 ---
 
-# 17. conversations
+## 17. conversations
 
 AI conversations.
 
@@ -363,7 +363,7 @@ AI conversations.
 
 ---
 
-# 18. conversation_messages
+## 18. conversation_messages
 
 Messages inside AI conversations.
 
@@ -385,7 +385,7 @@ SYSTEM
 
 ---
 
-# 19. Indexes
+## 19. Indexes
 
 Initial indexes:
 
@@ -415,7 +415,7 @@ Additional indexes should be introduced based on actual query patterns.
 
 ---
 
-# 20. Database Principles
+## 20. Database Principles
 
 The database follows these principles:
 

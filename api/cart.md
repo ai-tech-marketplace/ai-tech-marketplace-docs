@@ -14,7 +14,7 @@ All endpoints require authentication.
 
 ---
 
-# 2. Get Current Cart
+## 2. Get Current Cart
 
 ```http
 GET /api/v1/cart
@@ -49,7 +49,7 @@ Response:
 
 ---
 
-# 3. Add Product to Cart
+## 3. Add Product to Cart
 
 ```http
 POST /api/v1/cart/items
@@ -80,7 +80,7 @@ Response:
 
 ---
 
-# 4. Update Cart Item
+## 4. Update Cart Item
 
 ```http
 PUT /api/v1/cart/items/{itemId}
@@ -96,7 +96,7 @@ Request:
 
 ---
 
-# 5. Remove Cart Item
+## 5. Remove Cart Item
 
 ```http
 DELETE /api/v1/cart/items/{itemId}
@@ -110,7 +110,7 @@ Response:
 
 ---
 
-# 6. Clear Cart
+## 6. Clear Cart
 
 ```http
 DELETE /api/v1/cart/items
@@ -124,7 +124,7 @@ Response:
 
 ---
 
-# 7. Cart Rules
+## 7. Cart Rules
 
 The backend must validate:
 
@@ -139,7 +139,7 @@ The frontend must not determine whether a product is available.
 
 ---
 
-# 8. Cart Price
+## 8. Cart Price
 
 The frontend may display calculated prices.
 
@@ -170,7 +170,7 @@ Final order amount
 
 ---
 
-# 9. Cart Flow
+## 9. Cart Flow
 
 ```text
 Customer

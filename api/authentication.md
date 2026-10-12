@@ -22,19 +22,19 @@ GET  /me
 
 ---
 
-# 2. Register
+## 2. Register
 
-## Endpoint
+### Endpoint
 
 ```http
 POST /api/v1/auth/register
 ```
 
-## Authentication
+### Authentication
 
 Public
 
-## Request
+### Request
 
 ```json
 {
@@ -45,7 +45,7 @@ Public
 }
 ```
 
-## Validation
+### Validation
 
 | Field    | Required | Rules                |
 | -------- | -------- | -------------------- |
@@ -54,7 +54,7 @@ Public
 | fullName | Yes      | 2–100 characters     |
 | phone    | No       | Valid phone format   |
 
-## Success Response
+### Success Response
 
 HTTP `201 Created`
 
@@ -72,9 +72,9 @@ HTTP `201 Created`
 }
 ```
 
-## Errors
+### Errors
 
-### Email already exists
+#### Email already exists
 
 HTTP `409 Conflict`
 
@@ -89,19 +89,19 @@ HTTP `409 Conflict`
 
 ---
 
-# 3. Login
+## 3. Login
 
-## Endpoint
+### Endpoint
 
 ```http
 POST /api/v1/auth/login
 ```
 
-## Authentication
+### Authentication
 
 Public
 
-## Request
+### Request
 
 ```json
 {
@@ -110,7 +110,7 @@ Public
 }
 ```
 
-## Success Response
+### Success Response
 
 HTTP `200 OK`
 
@@ -133,7 +133,7 @@ HTTP `200 OK`
 }
 ```
 
-## Invalid Credentials
+### Invalid Credentials
 
 HTTP `401 Unauthorized`
 
@@ -148,19 +148,19 @@ HTTP `401 Unauthorized`
 
 ---
 
-# 4. Refresh Token
+## 4. Refresh Token
 
-## Endpoint
+### Endpoint
 
 ```http
 POST /api/v1/auth/refresh
 ```
 
-## Authentication
+### Authentication
 
 Public
 
-## Request
+### Request
 
 ```json
 {
@@ -168,7 +168,7 @@ Public
 }
 ```
 
-## Success Response
+### Success Response
 
 HTTP `200 OK`
 
@@ -187,15 +187,15 @@ HTTP `200 OK`
 
 ---
 
-# 5. Logout
+## 5. Logout
 
-## Endpoint
+### Endpoint
 
 ```http
 POST /api/v1/auth/logout
 ```
 
-## Authentication
+### Authentication
 
 Required
 
@@ -203,7 +203,7 @@ Required
 Authorization: Bearer <access-token>
 ```
 
-## Response
+### Response
 
 HTTP `204 No Content`
 
@@ -211,19 +211,19 @@ No response body is required.
 
 ---
 
-# 6. Get Current User
+## 6. Get Current User
 
-## Endpoint
+### Endpoint
 
 ```http
 GET /api/v1/auth/me
 ```
 
-## Authentication
+### Authentication
 
 Required
 
-## Response
+### Response
 
 HTTP `200 OK`
 
@@ -243,7 +243,7 @@ HTTP `200 OK`
 
 ---
 
-# 7. Authentication Flow
+## 7. Authentication Flow
 
 ```text
 React
@@ -284,7 +284,7 @@ Service
 
 ---
 
-# 8. Roles
+## 8. Roles
 
 Initial roles:
 
@@ -298,7 +298,7 @@ Role permissions will be defined separately.
 
 ---
 
-# 9. Security Rules
+## 9. Security Rules
 
 The backend must:
 

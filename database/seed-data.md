@@ -8,7 +8,7 @@ Seed data is not production data.
 
 ---
 
-# 2. Roles
+## 2. Roles
 
 Initial roles:
 
@@ -20,7 +20,7 @@ ADMIN
 
 ---
 
-# 3. Categories
+## 3. Categories
 
 Initial categories:
 
@@ -37,7 +37,7 @@ PC Component
 
 ---
 
-# 4. Brands
+## 4. Brands
 
 Initial brands:
 
@@ -54,7 +54,7 @@ Sony
 
 ---
 
-# 5. Development Admin
+## 5. Development Admin
 
 A development administrator may be created for local testing.
 
@@ -69,7 +69,7 @@ The password must be provided through environment configuration and must not be 
 
 ---
 
-# 6. Example Products
+## 6. Example Products
 
 Development data should contain enough products to test:
 
@@ -95,7 +95,7 @@ Example product categories:
 
 ---
 
-# 7. AI Test Products
+## 7. AI Test Products
 
 Some products should contain detailed specifications so that AI functionality can be tested.
 
@@ -125,7 +125,7 @@ Another example:
 
 ---
 
-# 8. Seed Data Rules
+## 8. Seed Data Rules
 
 Seed data must:
 
@@ -138,7 +138,7 @@ Seed data must:
 
 ---
 
-# 9. AI Development Dataset
+## 9. AI Development Dataset
 
 The AI service may later use a generated product dataset for:
 

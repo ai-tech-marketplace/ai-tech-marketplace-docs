@@ -16,7 +16,7 @@ Initial capabilities:
 
 ---
 
-# 2. Architecture
+## 2. Architecture
 
 The frontend does not communicate directly with the AI service.
 
@@ -40,9 +40,9 @@ Python FastAPI
 
 ---
 
-# 3. AI Chat
+## 3. AI Chat
 
-## Public Backend Endpoint
+### Public Backend Endpoint
 
 ```http
 POST /api/v1/ai/chat
@@ -52,7 +52,7 @@ Authentication:
 
 Required.
 
-## Request
+### Request
 
 ```json
 {
@@ -72,7 +72,7 @@ For an existing conversation:
 
 ---
 
-# 4. AI Chat Response
+## 4. AI Chat Response
 
 ```json
 {
@@ -101,9 +101,9 @@ For an existing conversation:
 
 ---
 
-# 5. AI Recommendation
+## 5. AI Recommendation
 
-## Endpoint
+### Endpoint
 
 ```http
 POST /api/v1/ai/recommendations
@@ -151,9 +151,9 @@ Response:
 
 ---
 
-# 6. Product Comparison
+## 6. Product Comparison
 
-## Endpoint
+### Endpoint
 
 ```http
 POST /api/v1/ai/compare
@@ -212,7 +212,7 @@ Response:
 
 ---
 
-# 7. Internal AI API
+## 7. Internal AI API
 
 The backend communicates with Python FastAPI through internal endpoints.
 
@@ -238,7 +238,7 @@ Request:
 
 ---
 
-# 8. AI Retrieval
+## 8. AI Retrieval
 
 The AI service may request product information from the backend.
 
@@ -259,7 +259,7 @@ The AI service must not directly modify transactional product data.
 
 ---
 
-# 9. RAG Pipeline
+## 9. RAG Pipeline
 
 Initial RAG architecture:
 
@@ -290,7 +290,7 @@ AI Response
 
 ---
 
-# 10. Product Embeddings
+## 10. Product Embeddings
 
 Products may be transformed into searchable documents.
 
@@ -319,7 +319,7 @@ This information can be converted into an embedding.
 
 ---
 
-# 11. Recommendation
+## 11. Recommendation
 
 Recommendation may initially use rule-based filtering.
 
@@ -349,7 +349,7 @@ AI/ML-based recommendation can be introduced later.
 
 ---
 
-# 12. LLM Responsibility
+## 12. LLM Responsibility
 
 The LLM should primarily be responsible for:
 
@@ -370,7 +370,7 @@ Those values must come from backend systems.
 
 ---
 
-# 13. AI Hallucination Prevention
+## 13. AI Hallucination Prevention
 
 The AI response should be grounded in retrieved product data.
 
@@ -400,7 +400,7 @@ Response
 
 ---
 
-# 14. AI Failure Handling
+## 14. AI Failure Handling
 
 If the AI service is unavailable:
 
@@ -437,7 +437,7 @@ Users should still be able to:
 
 ---
 
-# 15. AI Security
+## 15. AI Security
 
 The AI service must not expose:
 
@@ -449,7 +449,7 @@ Sensitive configuration must be provided through environment variables or a secu
 
 ---
 
-# 16. AI Rate Limiting
+## 16. AI Rate Limiting
 
 AI endpoints may have stricter rate limits than normal product APIs.
 
@@ -467,7 +467,7 @@ The exact limits will be configured later.
 
 ---
 
-# 17. Conversation
+## 17. Conversation
 
 The AI assistant supports conversations.
 
@@ -502,7 +502,7 @@ Conversation persistence strategy will be defined during AI implementation.
 
 ---
 
-# 18. AI API Ownership
+## 18. AI API Ownership
 
 Public AI API:
 
@@ -526,7 +526,7 @@ This creates a clear security boundary.
 
 ---
 
-# 19. Future AI Capabilities
+## 19. Future AI Capabilities
 
 Potential future capabilities:
 

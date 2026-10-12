@@ -12,7 +12,7 @@ for database schema versioning.
 
 ---
 
-# 2. Migration Location
+## 2. Migration Location
 
 Migration files will live inside the backend repository:
 
@@ -34,7 +34,7 @@ V7__create_ai_conversations.sql
 
 ---
 
-# 3. Migration Rules
+## 3. Migration Rules
 
 Migration files must:
 
@@ -46,7 +46,7 @@ Migration files must:
 
 ---
 
-# 4. Version Naming
+## 4. Version Naming
 
 Format:
 
@@ -70,9 +70,9 @@ V3__create_categories.sql
 
 ---
 
-# 5. Initial Migration Plan
+## 5. Initial Migration Plan
 
-## V1
+### V1
 
 Create:
 
@@ -80,7 +80,7 @@ Create:
 users
 ```
 
-## V2
+### V2
 
 Create:
 
@@ -89,7 +89,7 @@ roles
 user_roles
 ```
 
-## V3
+### V3
 
 Create:
 
@@ -100,7 +100,7 @@ products
 product_images
 ```
 
-## V4
+### V4
 
 Create:
 
@@ -108,7 +108,7 @@ Create:
 inventory
 ```
 
-## V5
+### V5
 
 Create:
 
@@ -118,7 +118,7 @@ carts
 cart_items
 ```
 
-## V6
+### V6
 
 Create:
 
@@ -127,7 +127,7 @@ orders
 order_items
 ```
 
-## V7
+### V7
 
 Create:
 
@@ -138,7 +138,7 @@ conversation_messages
 
 ---
 
-# 6. Development Database
+## 6. Development Database
 
 Development PostgreSQL will run using Docker Compose.
 
@@ -157,7 +157,7 @@ ai_marketplace
 
 ---
 
-# 7. Production Database
+## 7. Production Database
 
 Production database configuration must be provided through environment variables.
 
@@ -165,7 +165,7 @@ The application must not contain production credentials in Git.
 
 ---
 
-# 8. Migration Flow
+## 8. Migration Flow
 
 ```text
 Developer
@@ -197,7 +197,7 @@ Flyway migration
 
 ---
 
-# 9. Rollback
+## 9. Rollback
 
 Flyway migrations should generally use forward migrations rather than modifying old migration files.
 
