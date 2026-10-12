@@ -40,7 +40,7 @@ flowchart TB
         kafka[["Kafka Event Broker<br/>[Container: Apache Kafka]<br/>Publishes and streams domain events (OrderCreated, InventoryReserved, etc.)"]]:::broker
 
         %% Background Consumers
-        workers["Background Event Listeners<br/>[Container: Spring Boot Workers]<br/>Asynchronously processes notification dispatching, inventory adjustments, and analytics"]]:::service
+        workers["Background Event Listeners<br/>[Container: Spring Boot Workers]<br/>Asynchronously processes notification dispatching, inventory adjustments, and analytics"]:::service
     end
 
     %% External Systems

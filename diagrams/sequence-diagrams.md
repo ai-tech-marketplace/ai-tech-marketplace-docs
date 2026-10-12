@@ -76,12 +76,12 @@ sequenceDiagram
             Backend-->>Frontend: 422 Unprocessable Entity ("Insufficient stock")
         else Stock sufficient
             Backend->>Backend: Calculate immutable order total from current unit prices
-            Backend->>DB: Insert into `orders` (status = PENDING, total_amount, address snapshot)
-            Backend->>DB: Insert into `order_items` (snapshot name, sku, price, quantity)
-            Backend->>DB: Update `inventory` (increment reserved_quantity)
-            Backend->>DB: Clear Customer CartItems (DELETE / truncate cart_items)
+            Backend->>DB: Insert into orders (status = PENDING, total_amount, address snapshot)
+            Backend->>DB: Insert into order_items (snapshot name, sku, price, quantity)
+            Backend->>DB: Update inventory (increment reserved_quantity)
+            Backend->>DB: Clear Customer CartItems (DELETE cart_items)
             
-            Backend->>Kafka: Publish Event `OrderCreated` { orderId, userId, items, total }
+            Backend->>Kafka: Publish Event OrderCreated (orderId, userId, items, total)
             deactivate Backend
             
             Backend-->>Frontend: 201 Created (Order Response Envelope)
@@ -89,11 +89,15 @@ sequenceDiagram
         end
     end
 
-    par Asynchronous Event Processing
-        Kafka->>Worker: Consume `OrderCreated`
+    par Order Notification Dispatch
+        Kafka->>Worker: Consume OrderCreated
         activate Worker
         Worker->>Worker: Format order confirmation email
         Worker->>Customer: Send email notification
+        deactivate Worker
+    and Analytics & Sales Tracking
+        Kafka->>Worker: Consume OrderCreated
+        activate Worker
         Worker->>DB: Record analytics & sales event
         deactivate Worker
     end

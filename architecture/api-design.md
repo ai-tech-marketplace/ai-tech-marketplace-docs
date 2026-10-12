@@ -109,9 +109,9 @@ The API uses standard HTTP status codes.
 | 500    | Internal server error                    |
 | 503    | Service temporarily unavailable          |
 
-# 7. Authentication APIs
+## 7. Authentication APIs
 
-## 7.1 Register
+### 7.1 Register
 
 ```http
 POST /api/v1/auth/register
@@ -143,7 +143,7 @@ Response:
 }
 ```
 
-## 7.2 Login
+### 7.2 Login
 
 ```http
 POST /api/v1/auth/login
@@ -178,9 +178,9 @@ Response:
 }
 ```
 
-# 8. Product APIs
+## 8. Product APIs
 
-## 8.1 Get Products
+### 8.1 Get Products
 
 ```http
 GET /api/v1/products
@@ -237,7 +237,7 @@ Response:
 }
 ```
 
-## 8.2 Get Product Detail
+### 8.2 Get Product Detail
 
 ```http
 GET /api/v1/products/{id}
@@ -282,9 +282,9 @@ Response:
 }
 ```
 
-# 9. Category APIs
+## 9. Category APIs
 
-## 9.1 Get Categories
+### 9.1 Get Categories
 
 ```http
 GET /api/v1/categories
@@ -313,7 +313,7 @@ Response:
 }
 ```
 
-## 9.2 Get Category Detail
+### 9.2 Get Category Detail
 
 ```http
 GET /api/v1/categories/{id}
@@ -336,9 +336,9 @@ Response:
 
 ---
 
-# 10. Brand APIs
+## 10. Brand APIs
 
-## 10.1 Get Brands
+### 10.1 Get Brands
 
 ```http
 GET /api/v1/brands
@@ -367,7 +367,7 @@ Response:
 
 ---
 
-# 11. Shopping Cart APIs
+## 11. Shopping Cart APIs
 
 Shopping Cart endpoints manage customer selections prior to checkout. All endpoints require authentication.
 
@@ -412,7 +412,7 @@ Example response (`GET /api/v1/cart`):
 
 ---
 
-# 12. Order Management APIs
+## 12. Order Management APIs
 
 Order APIs handle checkout, order creation, order tracking, and cancellation.
 
@@ -437,7 +437,7 @@ Example request (`POST /api/v1/orders`):
 
 ---
 
-# 13. Inventory APIs
+## 13. Inventory APIs
 
 Inventory APIs provide stock availability information and administrative inventory adjustment.
 
@@ -464,7 +464,7 @@ Example response (`GET /api/v1/inventory/1`):
 
 ---
 
-# 14. AI Shopping Assistant APIs
+## 14. AI Shopping Assistant APIs
 
 AI Shopping Assistant endpoints provide conversational product recommendations, comparisons, and semantic search.
 
@@ -489,7 +489,7 @@ Example request (`POST /api/v1/ai/chat`):
 
 ---
 
-# 15. Administration APIs
+## 15. Administration APIs
 
 Administrative endpoints for catalog and user governance require the `ADMIN` role.
 
@@ -505,7 +505,7 @@ Administrative endpoints for catalog and user governance require the `ADMIN` rol
 
 ---
 
-# 16. Detailed Contract Directory
+## 16. Detailed Contract Directory
 
 The individual API contracts are maintained in dedicated documents:
 

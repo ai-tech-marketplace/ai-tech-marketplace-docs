@@ -95,17 +95,7 @@ Contains the project roadmap and development process.
 
 Current phase:
 
-**Phase 1 — System Analysis & Architecture**
+* **Phase 1 — System Analysis & Architecture**: Completed / In Review
+* **Phase 2 — Core MVP: Catalog & Shopping Cart**: In Progress (Spring Boot backend initialization complete; catalog and cart implementation underway)
 
-No application code is implemented yet.
-
-The current focus is defining:
-
-* Requirements
-* Actors
-* Use cases
-* Business rules
-* Database design
-* API contracts
-* System architecture
-* Architecture decisions
+For the complete breakdown of project milestones and multi-repository deliverables, see the [Development Roadmap](development/roadmap.md).
