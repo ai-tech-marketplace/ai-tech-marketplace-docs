@@ -80,6 +80,13 @@ flowchart LR
   - Event publishing: `OrderCreated`, `OrderConfirmed`, `OrderCancelled`, `InventoryReserved`, `InventoryReleased`.
   - Asynchronous background consumers for transactional email notifications.
   - Mock payment gateway integration (webhook callbacks).
+- [ ] Promotion & Coupon System:
+  - Flyway migration `V13__create_coupons.sql` (`coupons` with `is_public`, `coupon_usages` with `status` and `released_at`).
+  - Customer coupon discovery API (`GET /api/v1/coupons`).
+  - Pre-checkout validation API (`POST /api/v1/coupons/validate`) with dynamic shipping fee resolution.
+  - Transactional checkout redemption with quota management and audit recording.
+  - Automated coupon quota rollback on order cancellation / 15-minute unpaid timeout (`BR-COUPON-007`).
+  - Administrative coupon management endpoints (`/api/v1/admin/coupons`).
 
 ---
 
