@@ -32,6 +32,10 @@ erDiagram
     ORDERS ||--o{ PAYMENTS : "paid_by"
     PRODUCTS ||--o{ ORDER_ITEMS : "historical_reference"
 
+    COUPONS ||--o{ COUPON_USAGES : "tracked_in"
+    USERS ||--o{ COUPON_USAGES : "redeems"
+    ORDERS ||--o| COUPON_USAGES : "applies"
+
     CONVERSATIONS ||--|{ CONVERSATION_MESSAGES : "contains"
 
     USERS {
@@ -202,6 +206,37 @@ erDiagram
         text content
         timestamp created_at
     }
+
+    COUPONS {
+        bigint id PK
+        varchar code UK
+        varchar name
+        text description
+        varchar discount_type
+        numeric discount_value
+        numeric max_discount_amount
+        numeric min_order_value
+        int usage_limit
+        int used_count
+        int usage_limit_per_user
+        boolean is_public
+        timestamp start_date
+        timestamp end_date
+        varchar status
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    COUPON_USAGES {
+        bigint id PK
+        bigint coupon_id FK
+        bigint user_id FK
+        bigint order_id FK,UK
+        numeric discount_amount
+        varchar status
+        timestamp used_at
+        timestamp released_at
+    }
 ```
 
 ---
@@ -214,5 +249,6 @@ erDiagram
 | **Catalog & Products** | `CATEGORIES`, `BRANDS`, `PRODUCTS`, `PRODUCT_IMAGES` | - Each Product belongs to one Seller (`USERS`), one Category and optionally one Brand.<br/>- Flexible product specifications are indexed via PostgreSQL `JSONB`.<br/>- `PRODUCT_IMAGES` provides a 1-to-N sorted image gallery. |
 | **Inventory** | `INVENTORY` | - One-to-One with `PRODUCTS`. Available quantity is derived: `quantity - reserved_quantity`. |
 | **Cart & Ordering** | `CARTS`, `CART_ITEMS`, `ORDERS`, `ORDER_ITEMS`, `PAYMENTS` | - A customer has exactly one active `CARTS`.<br/>- Unique composite constraint on `(cart_id, product_id)`.<br/>- `ORDERS` and `ORDER_ITEMS` capture immutable historical snapshots of recipient contact, shipping address, and product unit prices at purchase time.<br/>- `PAYMENTS` tracks gateway transaction states linked 1-to-N with `ORDERS`. |
+| **Promotions & Coupons** | `COUPONS`, `COUPON_USAGES` | - `COUPONS` manages platform campaigns with `PERCENTAGE`, `FIXED_AMOUNT`, and `SHIPPING` rules.<br/>- `COUPON_USAGES` tracks redemption history per order (`order_id` unique constraint enforces 1 coupon per order) and supports audit status (`USED` vs `RELEASED`). |
 | **Reviews & Feedback** | `REVIEWS` | - Customers submit 1-to-N verified reviews for purchased `PRODUCTS` with 1-5 star ratings. |
 | **AI Conversations** | `CONVERSATIONS`, `CONVERSATION_MESSAGES` | - AI chat history linked to `user_id` using UUID keys for stateless session tracking. Messages store conversational roles (`USER`, `ASSISTANT`, `SYSTEM`). |
