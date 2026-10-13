@@ -58,6 +58,9 @@ Load Active Cart
 Validate Product Status & Inventory
       |
       v
+Validate Coupon (if couponCode provided)
+      |
+      v
 Calculate Subtotal, Shipping Fee, Discounts
       |
       v
@@ -65,6 +68,9 @@ Create Order (status=PENDING, paymentStatus=PENDING)
       |
       v
 Create Order Items & Payment Record
+      |
+      v
+Record Coupon Usage (coupon_usages: status=USED) & Increment used_count
       |
       v
 Reserve Inventory (reserved_quantity += quantity)
@@ -200,11 +206,11 @@ Orders track two orthogonal states:
 
 ### 8.3 Auto-Expiration (TTL)
 
-For orders awaiting online payment, an asynchronous timer or scheduled task checks orders past their `expiresAt` timestamp (default: 15 minutes). If payment is not completed, the order automatically transitions to `CANCELLED`, payment status becomes `FAILED`, and reserved stock is released back into available inventory.
+For orders awaiting online payment, an asynchronous timer or scheduled task checks orders past their `expiresAt` timestamp (default: 15 minutes). If payment is not completed, the order automatically transitions to `CANCELLED`, payment status becomes `FAILED`, reserved stock is released back into available inventory, and any associated coupon redemption is released (`coupon_usages.status = 'RELEASED'`, `released_at = CURRENT_TIMESTAMP`, `coupons.used_count` decremented by 1) per `BR-COUPON-007`.
 
 ### 8.4 Customer Cancellation Window
 
-Customers may initiate cancellation (`POST /api/v1/orders/{id}/cancel`) only while the order is in `PENDING` or `CONFIRMED` fulfillment state. Once in `PROCESSING` or `SHIPPED`, cancellations must go through return/refund support workflows.
+Customers may initiate cancellation (`POST /api/v1/orders/{id}/cancel`) only while the order is in `PENDING` or `CONFIRMED` fulfillment state. Upon cancellation, reserved stock is released, and associated coupon quota is restored with `coupon_usages.status = 'RELEASED'` and `coupons.used_count` decremented by 1. Once in `PROCESSING` or `SHIPPED`, cancellations must go through return/refund support workflows.
 
 ---
 
