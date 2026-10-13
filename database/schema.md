@@ -440,7 +440,53 @@ SYSTEM
 
 ---
 
-## 21. Indexes
+## 21. coupons
+
+Promotional coupons and vouchers.
+
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| id | BIGSERIAL | PK | Primary identifier |
+| code | VARCHAR(50) | UNIQUE, NOT NULL | Alphanumeric coupon code (uppercase) |
+| name | VARCHAR(150) | NOT NULL | Display name of the campaign |
+| description | TEXT | NULL | Promotional details and terms |
+| discount_type | VARCHAR(30) | NOT NULL | `PERCENTAGE`, `FIXED_AMOUNT`, `SHIPPING` |
+| discount_value | NUMERIC(15,2) | NOT NULL | Discount percentage or direct monetary deduction |
+| max_discount_amount | NUMERIC(15,2) | NULL | Maximum discount cap (mandatory for `PERCENTAGE`) |
+| min_order_value | NUMERIC(15,2) | NOT NULL DEFAULT 0.00 | Minimum cart subtotal required |
+| usage_limit | INTEGER | NOT NULL | Maximum total platform redemptions |
+| used_count | INTEGER | NOT NULL DEFAULT 0 | Counter for active redemptions |
+| usage_limit_per_user | INTEGER | NOT NULL DEFAULT 1 | Maximum redemptions per individual customer |
+| is_public | BOOLEAN | NOT NULL DEFAULT TRUE | Discoverable in public listings vs private code-only |
+| start_date | TIMESTAMP | NOT NULL | Validity start timestamp |
+| end_date | TIMESTAMP | NOT NULL | Validity end timestamp |
+| status | VARCHAR(30) | NOT NULL DEFAULT 'ACTIVE' | `ACTIVE`, `INACTIVE` |
+| created_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Created timestamp |
+| updated_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Last updated timestamp |
+
+---
+
+## 22. coupon_usages
+
+Audit log of coupon redemptions tied to orders and customer accounts.
+
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| id | BIGSERIAL | PK | Primary identifier |
+| coupon_id | BIGINT | FK coupons.id, NOT NULL | Applied coupon |
+| user_id | BIGINT | FK users.id, NOT NULL | Customer who redeemed |
+| order_id | BIGINT | FK orders.id, NOT NULL | Order where coupon was applied |
+| discount_amount | NUMERIC(15,2) | NOT NULL | Actual discount amount deducted |
+| status | VARCHAR(30) | NOT NULL DEFAULT 'USED' | `USED`, `RELEASED` |
+| used_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Redemption timestamp |
+| released_at | TIMESTAMP | NULL | Rollback timestamp on order cancellation |
+
+Unique constraint: `order_id` (single coupon per order).
+Index constraint: `(coupon_id, user_id, status)`.
+
+---
+
+## 23. Indexes
 
 Initial indexes:
 
@@ -470,6 +516,12 @@ payments(transaction_reference)
 reviews(product_id)
 reviews(user_id)
 
+coupons(code)
+coupons(is_public, status, start_date, end_date)
+
+coupon_usages(coupon_id, user_id, status)
+coupon_usages(order_id)
+
 cart_items(cart_id)
 
 addresses(user_id)
@@ -481,7 +533,7 @@ Additional indexes should be introduced based on actual query patterns.
 
 ---
 
-## 22. Database Principles
+## 24. Database Principles
 
 The database follows these principles:
 
@@ -493,3 +545,4 @@ The database follows these principles:
 6. Database migrations must be version controlled.
 7. Application code must not manually modify production schemas.
 8. Schema changes must go through migration files.
+

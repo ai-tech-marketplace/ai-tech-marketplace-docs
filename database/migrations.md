@@ -89,7 +89,7 @@ V3__create_categories.sql
 * **V10__create_orders.sql**: `orders`, `order_items`, and `payments` tables with payment states and fee columns.
 * **V11__create_reviews.sql**: `reviews` table with 1-5 star ratings and verified purchase constraint.
 * **V12__create_ai_conversations.sql**: `conversations` and `conversation_messages` tables.
-
+* **V13__create_coupons.sql**: `coupons` table (with `is_public`) and `coupon_usages` table (with `status` and `released_at`).
 
 ---
 
