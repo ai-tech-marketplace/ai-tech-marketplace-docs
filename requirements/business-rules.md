@@ -305,3 +305,70 @@ Each product is associated with a selling entity (`seller_id`). Only the owner s
 
 Sellers can view and manage fulfillment only for order items that belong to products they own.
 
+## 13. Promotion & Coupon Rules
+
+### BR-COUPON-001 — Single Coupon per Order
+
+A customer order may apply at most one coupon code. Coupon stacking across items or combining multiple promotional codes on a single order is strictly disallowed.
+
+### BR-COUPON-002 — Discount Types & Calculation Formulas
+
+The system supports three distinct promotional discount types:
+
+1. **`PERCENTAGE`**: Computes a percentage reduction on the order merchandise subtotal, capped at an enforced maximum amount:
+   ```text
+   discount_amount = min(subtotal * (discount_value / 100), max_discount_amount)
+   ```
+2. **`FIXED_AMOUNT`**: Deducts a flat currency amount directly from the merchandise subtotal:
+   ```text
+   discount_amount = min(subtotal, discount_value)
+   ```
+3. **`SHIPPING`**: Deducts an amount from the calculated delivery fee, capped at the actual shipping fee:
+   ```text
+   discount_amount = min(shipping_fee, discount_value)
+   ```
+
+### BR-COUPON-003 — Minimum Order Threshold
+
+A coupon code cannot be applied if the merchandise subtotal is below its required threshold:
+```text
+subtotal < min_order_value
+```
+
+### BR-COUPON-004 — Usage & Budget Limits
+
+The platform enforces two levels of usage limits:
+
+1. **Global Limit:** A coupon is invalid if its total redemption count across all customers reaches or exceeds its overall quota:
+   ```text
+   used_count >= usage_limit
+   ```
+2. **Per-Customer Limit:** A coupon is invalid for a specific customer if that customer's active redemptions reach the per-user limit (default 1):
+   ```text
+   user_usage_count >= usage_limit_per_user
+   ```
+
+### BR-COUPON-005 — Time Validity and Expiration
+
+A coupon is valid only when:
+```text
+start_date <= current_timestamp <= end_date AND status = 'ACTIVE'
+```
+Expired status is evaluated dynamically based on whether `current_timestamp > end_date`.
+
+### BR-COUPON-006 — Order Total Floor
+
+The final payable order amount (`subtotal + shipping_fee - discount_amount`) must never be reduced below 0 VND.
+
+### BR-COUPON-007 — Coupon Quota Release and Rollback
+
+If an order is cancelled or times out unpaid:
+
+1. **Auto-Cancellation on 15-min Timeout (`BR-ORDER-005`):** When an online order expires unpaid, the associated `coupon_usages` record transitions to `status = 'RELEASED'` with `released_at = CURRENT_TIMESTAMP`, and `coupons.used_count` is atomically decremented by 1.
+2. **Customer Cancellation (`BR-ORDER-006`):** When a customer cancels a `PENDING` or `CONFIRMED` order prior to shipping, the coupon usage is transitioned to `RELEASED` and quota is restored.
+3. If the coupon has passed its `end_date` at the time of order cancellation, the usage quota is released in audit records, but the customer cannot reuse the coupon due to `BR-COUPON-005`.
+
+### BR-COUPON-008 — Admin Configuration Immutability
+
+Once a coupon has been redeemed at least once (`used_count > 0`), its core promotional and financial terms (`code`, `discount_type`, `discount_value`, `max_discount_amount`, `min_order_value`) are immutable to preserve transactional accounting consistency. Administrators may only update metadata (`name`, `description`), extend `end_date`, increase `usage_limit`, or deactivate the coupon (`status = 'INACTIVE'`).
+
