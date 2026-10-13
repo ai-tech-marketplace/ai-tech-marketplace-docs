@@ -70,71 +70,26 @@ V3__create_categories.sql
 
 ---
 
-## 5. Initial Migration Plan
+## 5. Migration Sequence Plan
 
-### V1
+### Applied Migrations (Core Baseline):
 
-Create:
+* **V1__init.sql**: Base `users`, `roles`, and `user_roles` tables.
+* **V2__create_products.sql**: Core `products` table with basic seller link and pricing checks.
+* **V3__create_categories.sql**: `categories` table.
+* **V4__create_product_categories.sql**: `product_categories` join table.
+* **V5__create_product_images.sql**: `product_images` object storage mapping.
+* **V6__create_carts.sql**: `carts` and `cart_items` tables with ownership and quantity constraints.
 
-```text
-users
-```
+### Upcoming Migrations:
 
-### V2
+* **V7__create_brands.sql**: `brands` table and `brand_id` reference on `products`.
+* **V8__create_addresses.sql**: `addresses` table for customer shipping book.
+* **V9__create_inventory.sql**: Dedicated `inventory` table with `quantity` and `reserved_quantity`.
+* **V10__create_orders.sql**: `orders`, `order_items`, and `payments` tables with payment states and fee columns.
+* **V11__create_reviews.sql**: `reviews` table with 1-5 star ratings and verified purchase constraint.
+* **V12__create_ai_conversations.sql**: `conversations` and `conversation_messages` tables.
 
-Create:
-
-```text
-roles
-user_roles
-```
-
-### V3
-
-Create:
-
-```text
-categories
-brands
-products
-product_images
-```
-
-### V4
-
-Create:
-
-```text
-inventory
-```
-
-### V5
-
-Create:
-
-```text
-addresses
-carts
-cart_items
-```
-
-### V6
-
-Create:
-
-```text
-orders
-order_items
-```
-
-### V7
-
-Create:
-
-```text
-conversations
-conversation_messages
-```
 
 ---
 

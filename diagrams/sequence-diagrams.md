@@ -20,12 +20,12 @@ sequenceDiagram
     Frontend->>Backend: POST /api/v1/auth/login
     activate Backend
     Backend->>DB: Query user by email (uk_users_email)
-    DB-->>Backend: Return User (hash, is_active, roles)
+    DB-->>Backend: Return User (hash, status, roles)
 
     alt User not found or password mismatch
         Backend-->>Frontend: 401 Unauthorized (AUTH_INVALID_CREDENTIALS)
         Frontend-->>Customer: Display error message
-    else Credentials valid & User active
+    else Credentials valid & User active (status = ACTIVE)
         Backend->>Backend: Generate Access Token (1h) & Refresh Token (7d)
         Backend-->>Frontend: 200 OK (accessToken, refreshToken, user)
         deactivate Backend
@@ -59,8 +59,8 @@ sequenceDiagram
     participant Kafka as Kafka Broker
     participant Worker as Background Workers
 
-    Customer->>Frontend: Clicks "Checkout" (selects address)
-    Frontend->>Backend: POST /api/v1/orders { "addressId": 10 }
+    Customer->>Frontend: Clicks "Checkout" (selects address & payment method)
+    Frontend->>Backend: POST /api/v1/orders { "addressId": 10, "paymentMethod": "VNPAY" }
     activate Backend
 
     Note over Backend,DB: Transaction Boundary: @Transactional
@@ -75,17 +75,18 @@ sequenceDiagram
         alt Stock insufficient for any item
             Backend-->>Frontend: 422 Unprocessable Entity ("Insufficient stock")
         else Stock sufficient
-            Backend->>Backend: Calculate immutable order total from current unit prices
-            Backend->>DB: Insert into orders (status = PENDING, total_amount, address snapshot)
+            Backend->>Backend: Calculate subtotal, shipping fee, discounts, final total
+            Backend->>DB: Insert into orders (status=PENDING, payment_status=PENDING, totals, address snapshot)
             Backend->>DB: Insert into order_items (snapshot name, sku, price, quantity)
+            Backend->>DB: Insert into payments (order_id, payment_method, status=PENDING, amount)
             Backend->>DB: Update inventory (increment reserved_quantity)
             Backend->>DB: Clear Customer CartItems (DELETE cart_items)
             
             Backend->>Kafka: Publish Event OrderCreated (orderId, userId, items, total)
             deactivate Backend
             
-            Backend-->>Frontend: 201 Created (Order Response Envelope)
-            Frontend-->>Customer: Display Order Confirmation view
+            Backend-->>Frontend: 201 Created (Order Response Envelope with paymentUrl)
+            Frontend-->>Customer: Display Order Confirmation / Redirect to Payment Gateway
         end
     end
 

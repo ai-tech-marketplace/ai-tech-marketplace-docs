@@ -512,7 +512,11 @@ The individual API contracts are maintained in dedicated documents:
 | Domain | Contract Document | Responsibility |
 | --- | --- | --- |
 | Authentication | [authentication.md](../api/authentication.md) | Register, Login, Refresh token, Logout, Current user |
-| Products | [products.md](../api/products.md) | Catalog, Search, Filtering, Categories, Brands |
-| Shopping Cart | [cart.md](../api/cart.md) | Cart items, Stock validation, Subtotal |
-| Orders | [orders.md](../api/orders.md) | Order creation, Status transitions, Events |
+| Products | [products.md](../api/products.md) | Catalog, Search, Filtering, Categories |
+| Brands | [brands.md](../api/brands.md) | Brand discovery, Brand management |
+| Shopping Cart | [cart.md](../api/cart.md) | Cart items, Guest cart merge, Stock validation, Subtotal |
+| Orders & Payments | [orders.md](../api/orders.md) | Order creation, Payment lifecycle, Webhook callback, Cancellation |
+| Addresses | [addresses.md](../api/addresses.md) | Customer shipping address book, Defaults |
+| Reviews & Ratings | [reviews.md](../api/reviews.md) | Verified purchase reviews, Star ratings, Reputation summary |
 | AI Shopping Assistant | [ai.md](../api/ai.md) | Chat, Recommendation, Comparison, RAG |
+
