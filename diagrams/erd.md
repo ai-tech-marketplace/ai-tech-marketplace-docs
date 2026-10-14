@@ -15,6 +15,8 @@ erDiagram
     USERS ||--o{ ADDRESSES : "owns"
     USERS ||--o| CARTS : "maintains"
     USERS ||--o{ ORDERS : "places"
+    USERS ||--o{ PRODUCTS : "sells"
+    USERS ||--o{ REVIEWS : "writes"
     USERS ||--o{ CONVERSATIONS : "participates_in"
 
     CARTS ||--o{ CART_ITEMS : "contains"
@@ -24,9 +26,15 @@ erDiagram
     BRANDS ||--o{ PRODUCTS : "brands"
     PRODUCTS ||--o{ PRODUCT_IMAGES : "has_gallery"
     PRODUCTS ||--|| INVENTORY : "tracks_stock"
+    PRODUCTS ||--o{ REVIEWS : "reviewed_in"
 
     ORDERS ||--|{ ORDER_ITEMS : "contains"
+    ORDERS ||--o{ PAYMENTS : "paid_by"
     PRODUCTS ||--o{ ORDER_ITEMS : "historical_reference"
+
+    COUPONS ||--o{ COUPON_USAGES : "tracked_in"
+    USERS ||--o{ COUPON_USAGES : "redeems"
+    ORDERS ||--o| COUPON_USAGES : "applies"
 
     CONVERSATIONS ||--|{ CONVERSATION_MESSAGES : "contains"
 
@@ -71,6 +79,7 @@ erDiagram
 
     PRODUCTS {
         bigint id PK
+        bigint seller_id FK
         varchar sku UK
         varchar name
         varchar slug UK
@@ -136,6 +145,11 @@ erDiagram
         varchar order_number UK
         bigint user_id FK
         varchar status
+        varchar payment_method
+        varchar payment_status
+        numeric subtotal
+        numeric shipping_fee
+        numeric discount_amount
         numeric total_amount
         varchar shipping_recipient_name
         varchar shipping_phone
@@ -155,6 +169,29 @@ erDiagram
         numeric subtotal
     }
 
+    PAYMENTS {
+        bigint id PK
+        bigint order_id FK
+        varchar payment_method
+        varchar transaction_reference
+        numeric amount
+        varchar status
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    REVIEWS {
+        bigint id PK
+        bigint user_id FK
+        bigint product_id FK
+        bigint order_item_id FK
+        int rating
+        text comment
+        boolean is_verified_purchase
+        timestamp created_at
+        timestamp updated_at
+    }
+
     CONVERSATIONS {
         uuid id PK
         bigint user_id FK
@@ -169,6 +206,37 @@ erDiagram
         text content
         timestamp created_at
     }
+
+    COUPONS {
+        bigint id PK
+        varchar code UK
+        varchar name
+        text description
+        varchar discount_type
+        numeric discount_value
+        numeric max_discount_amount
+        numeric min_order_value
+        int usage_limit
+        int used_count
+        int usage_limit_per_user
+        boolean is_public
+        timestamp start_date
+        timestamp end_date
+        varchar status
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    COUPON_USAGES {
+        bigint id PK
+        bigint coupon_id FK
+        bigint user_id FK
+        bigint order_id FK,UK
+        numeric discount_amount
+        varchar status
+        timestamp used_at
+        timestamp released_at
+    }
 ```
 
 ---
@@ -178,7 +246,9 @@ erDiagram
 | Entity Group | Entities | Cardinality & Integrity Rules |
 | --- | --- | --- |
 | **Identity & Access** | `USERS`, `ROLES`, `USER_ROLES`, `ADDRESSES` | - Users have a Many-to-Many relationship with Roles via `USER_ROLES`.<br/>- A User has Zero-to-Many `ADDRESSES`; at most one address is marked `is_default`. |
-| **Catalog & Products** | `CATEGORIES`, `BRANDS`, `PRODUCTS`, `PRODUCT_IMAGES` | - Each Product belongs to one Category and optionally one Brand.<br/>- Flexible product specifications are indexed via PostgreSQL `JSONB`.<br/>- `PRODUCT_IMAGES` provides a 1-to-N sorted image gallery. |
+| **Catalog & Products** | `CATEGORIES`, `BRANDS`, `PRODUCTS`, `PRODUCT_IMAGES` | - Each Product belongs to one Seller (`USERS`), one Category and optionally one Brand.<br/>- Flexible product specifications are indexed via PostgreSQL `JSONB`.<br/>- `PRODUCT_IMAGES` provides a 1-to-N sorted image gallery. |
 | **Inventory** | `INVENTORY` | - One-to-One with `PRODUCTS`. Available quantity is derived: `quantity - reserved_quantity`. |
-| **Cart & Ordering** | `CARTS`, `CART_ITEMS`, `ORDERS`, `ORDER_ITEMS` | - A customer has exactly one active `CARTS`.<br/>- Unique composite constraint on `(cart_id, product_id)`.<br/>- `ORDERS` and `ORDER_ITEMS` capture immutable historical snapshots of recipient contact, shipping address, and product unit prices at purchase time. |
+| **Cart & Ordering** | `CARTS`, `CART_ITEMS`, `ORDERS`, `ORDER_ITEMS`, `PAYMENTS` | - A customer has exactly one active `CARTS`.<br/>- Unique composite constraint on `(cart_id, product_id)`.<br/>- `ORDERS` and `ORDER_ITEMS` capture immutable historical snapshots of recipient contact, shipping address, and product unit prices at purchase time.<br/>- `PAYMENTS` tracks gateway transaction states linked 1-to-N with `ORDERS`. |
+| **Promotions & Coupons** | `COUPONS`, `COUPON_USAGES` | - `COUPONS` manages platform campaigns with `PERCENTAGE`, `FIXED_AMOUNT`, and `SHIPPING` rules.<br/>- `COUPON_USAGES` tracks redemption history per order (`order_id` unique constraint enforces 1 coupon per order) and supports audit status (`USED` vs `RELEASED`). |
+| **Reviews & Feedback** | `REVIEWS` | - Customers submit 1-to-N verified reviews for purchased `PRODUCTS` with 1-5 star ratings. |
 | **AI Conversations** | `CONVERSATIONS`, `CONVERSATION_MESSAGES` | - AI chat history linked to `user_id` using UUID keys for stateless session tracking. Messages store conversational roles (`USER`, `ASSISTANT`, `SYSTEM`). |

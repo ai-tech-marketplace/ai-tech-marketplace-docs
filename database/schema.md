@@ -14,7 +14,7 @@ The database stores transactional marketplace data.
 
 ## 2. Main Entities
 
-The initial database contains:
+The database contains:
 
 ```text
 users
@@ -26,6 +26,8 @@ brands
 products
 product_images
 
+inventory
+
 carts
 cart_items
 
@@ -33,8 +35,9 @@ addresses
 
 orders
 order_items
+payments
 
-inventory
+reviews
 
 conversations
 conversation_messages
@@ -57,7 +60,13 @@ users
   |
   ├── orders
   |     |
-  |     └── order_items ── products
+  |     ├── order_items ── products
+  |     |
+  |     └── payments
+  |
+  ├── reviews ── products
+  |
+  ├── products (as seller)
   |
   └── conversations
           |
@@ -66,10 +75,11 @@ users
 
 categories ── products ── brands
                   |
-                  └── product_images
-
-products ── inventory
+                  ├── product_images
+                  |
+                  └── inventory
 ```
+
 
 ---
 
@@ -195,6 +205,7 @@ Main product table.
 | Column         | Type          | Constraints      |
 | -------------- | ------------- | ---------------- |
 | id             | BIGSERIAL     | PK               |
+| seller_id      | BIGINT        | FK users.id, NOT NULL |
 | sku            | VARCHAR(100)  | UNIQUE, NOT NULL |
 | name           | VARCHAR(255)  | NOT NULL         |
 | slug           | VARCHAR(300)  | UNIQUE, NOT NULL |
@@ -318,8 +329,13 @@ Customer orders.
 | ----------------------- | ------------- | ---------------- |
 | id                      | BIGSERIAL     | PK               |
 | order_number            | VARCHAR(50)   | UNIQUE, NOT NULL |
-| user_id                 | BIGINT        | FK               |
+| user_id                 | BIGINT        | FK users.id      |
 | status                  | VARCHAR(30)   | NOT NULL         |
+| payment_method          | VARCHAR(50)   | NOT NULL         |
+| payment_status          | VARCHAR(30)   | NOT NULL         |
+| subtotal                | NUMERIC(15,2) | NOT NULL         |
+| shipping_fee            | NUMERIC(15,2) | NOT NULL DEFAULT 0.00 |
+| discount_amount         | NUMERIC(15,2) | NOT NULL DEFAULT 0.00 |
 | total_amount            | NUMERIC(15,2) | NOT NULL         |
 | shipping_recipient_name | VARCHAR(100)  | NOT NULL         |
 | shipping_phone          | VARCHAR(30)   | NOT NULL         |
@@ -338,8 +354,8 @@ Products purchased in an order.
 | Column       | Type          | Constraints |
 | ------------ | ------------- | ----------- |
 | id           | BIGSERIAL     | PK          |
-| order_id     | BIGINT        | FK          |
-| product_id   | BIGINT        | FK          |
+| order_id     | BIGINT        | FK orders.id |
+| product_id   | BIGINT        | FK products.id |
 | product_name | VARCHAR(255)  | NOT NULL    |
 | sku          | VARCHAR(100)  | NOT NULL    |
 | quantity     | INTEGER       | NOT NULL    |
@@ -350,27 +366,66 @@ Historical product information is copied into the order item.
 
 ---
 
-## 17. conversations
+## 17. payments
+
+Payment transaction records for orders.
+
+| Column                | Type          | Constraints          |
+| --------------------- | ------------- | -------------------- |
+| id                    | BIGSERIAL     | PK                   |
+| order_id              | BIGINT        | FK orders.id, NOT NULL |
+| payment_method        | VARCHAR(50)   | NOT NULL             |
+| transaction_reference | VARCHAR(255)  | NULL                 |
+| amount                | NUMERIC(15,2) | NOT NULL             |
+| status                | VARCHAR(30)   | NOT NULL             |
+| created_at            | TIMESTAMP     | NOT NULL             |
+| updated_at            | TIMESTAMP     | NOT NULL             |
+
+Statuses: `PENDING`, `PAID`, `FAILED`, `REFUNDED`.
+
+---
+
+## 18. reviews
+
+Customer reviews and ratings for purchased products.
+
+| Column               | Type        | Constraints          |
+| -------------------- | ----------- | -------------------- |
+| id                   | BIGSERIAL   | PK                   |
+| user_id              | BIGINT      | FK users.id, NOT NULL |
+| product_id           | BIGINT      | FK products.id, NOT NULL |
+| order_item_id        | BIGINT      | FK order_items.id, NULL |
+| rating               | INTEGER     | NOT NULL, CHECK (rating BETWEEN 1 AND 5) |
+| comment              | TEXT        | NULL                 |
+| is_verified_purchase | BOOLEAN     | NOT NULL DEFAULT TRUE |
+| created_at           | TIMESTAMP   | NOT NULL             |
+| updated_at           | TIMESTAMP   | NOT NULL             |
+
+Unique constraint: `(user_id, product_id, order_item_id)` prevents duplicate reviews for the same order purchase.
+
+---
+
+## 19. conversations
 
 AI conversations.
 
 | Column     | Type      | Constraints |
 | ---------- | --------- | ----------- |
 | id         | UUID      | PK          |
-| user_id    | BIGINT    | FK          |
+| user_id    | BIGINT    | FK users.id |
 | created_at | TIMESTAMP | NOT NULL    |
 | updated_at | TIMESTAMP | NOT NULL    |
 
 ---
 
-## 18. conversation_messages
+## 20. conversation_messages
 
 Messages inside AI conversations.
 
 | Column          | Type        | Constraints |
 | --------------- | ----------- | ----------- |
 | id              | BIGSERIAL   | PK          |
-| conversation_id | UUID        | FK          |
+| conversation_id | UUID        | FK conversations.id |
 | role            | VARCHAR(30) | NOT NULL    |
 | content         | TEXT        | NOT NULL    |
 | created_at      | TIMESTAMP   | NOT NULL    |
@@ -385,13 +440,60 @@ SYSTEM
 
 ---
 
-## 19. Indexes
+## 21. coupons
+
+Promotional coupons and vouchers.
+
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| id | BIGSERIAL | PK | Primary identifier |
+| code | VARCHAR(50) | UNIQUE, NOT NULL | Alphanumeric coupon code (uppercase) |
+| name | VARCHAR(150) | NOT NULL | Display name of the campaign |
+| description | TEXT | NULL | Promotional details and terms |
+| discount_type | VARCHAR(30) | NOT NULL | `PERCENTAGE`, `FIXED_AMOUNT`, `SHIPPING` |
+| discount_value | NUMERIC(15,2) | NOT NULL | Discount percentage or direct monetary deduction |
+| max_discount_amount | NUMERIC(15,2) | NULL | Maximum discount cap (mandatory for `PERCENTAGE`) |
+| min_order_value | NUMERIC(15,2) | NOT NULL DEFAULT 0.00 | Minimum cart subtotal required |
+| usage_limit | INTEGER | NOT NULL | Maximum total platform redemptions |
+| used_count | INTEGER | NOT NULL DEFAULT 0 | Counter for active redemptions |
+| usage_limit_per_user | INTEGER | NOT NULL DEFAULT 1 | Maximum redemptions per individual customer |
+| is_public | BOOLEAN | NOT NULL DEFAULT TRUE | Discoverable in public listings vs private code-only |
+| start_date | TIMESTAMP | NOT NULL | Validity start timestamp |
+| end_date | TIMESTAMP | NOT NULL | Validity end timestamp |
+| status | VARCHAR(30) | NOT NULL DEFAULT 'ACTIVE' | `ACTIVE`, `INACTIVE` |
+| created_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Created timestamp |
+| updated_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Last updated timestamp |
+
+---
+
+## 22. coupon_usages
+
+Audit log of coupon redemptions tied to orders and customer accounts.
+
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| id | BIGSERIAL | PK | Primary identifier |
+| coupon_id | BIGINT | FK coupons.id, NOT NULL | Applied coupon |
+| user_id | BIGINT | FK users.id, NOT NULL | Customer who redeemed |
+| order_id | BIGINT | FK orders.id, NOT NULL | Order where coupon was applied |
+| discount_amount | NUMERIC(15,2) | NOT NULL | Actual discount amount deducted |
+| status | VARCHAR(30) | NOT NULL DEFAULT 'USED' | `USED`, `RELEASED` |
+| used_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Redemption timestamp |
+| released_at | TIMESTAMP | NULL | Rollback timestamp on order cancellation |
+
+Unique constraint: `order_id` (single coupon per order).
+Index constraint: `(coupon_id, user_id, status)`.
+
+---
+
+## 23. Indexes
 
 Initial indexes:
 
 ```text
 users(email)
 
+products(seller_id)
 products(sku)
 products(slug)
 products(category_id)
@@ -403,6 +505,22 @@ inventory(product_id)
 orders(order_number)
 orders(user_id)
 orders(status)
+orders(payment_status)
+
+order_items(order_id)
+order_items(product_id)
+
+payments(order_id)
+payments(transaction_reference)
+
+reviews(product_id)
+reviews(user_id)
+
+coupons(code)
+coupons(is_public, status, start_date, end_date)
+
+coupon_usages(coupon_id, user_id, status)
+coupon_usages(order_id)
 
 cart_items(cart_id)
 
@@ -415,7 +533,7 @@ Additional indexes should be introduced based on actual query patterns.
 
 ---
 
-## 20. Database Principles
+## 24. Database Principles
 
 The database follows these principles:
 
@@ -427,3 +545,4 @@ The database follows these principles:
 6. Database migrations must be version controlled.
 7. Application code must not manually modify production schemas.
 8. Schema changes must go through migration files.
+

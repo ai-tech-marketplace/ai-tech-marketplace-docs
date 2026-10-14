@@ -46,6 +46,8 @@ Customers can:
 * Place orders
 * View order history
 * Manage addresses
+* Browse eligible promotions and coupons
+* Apply coupon codes to shopping cart and orders
 * Use the AI Shopping Assistant
 
 ### Seller
@@ -70,6 +72,7 @@ Administrators can:
 * Manage brands
 * Manage orders
 * Manage inventory
+* Manage promotions and coupon campaigns
 * View system analytics
 
 ## 4. Functional Requirements
@@ -128,6 +131,23 @@ The system must support:
 * Reserve inventory during checkout
 * Release reserved inventory when an order is cancelled
 * Decrease available inventory after successful order processing
+
+### Coupon & Promotion Management
+
+The system must support:
+
+* Browse public active coupons
+* Validate coupon code against active cart and shipping address
+* Multi-type discount calculations:
+  * `PERCENTAGE` with maximum discount amount ceiling
+  * `FIXED_AMOUNT` direct cash deductions
+  * `SHIPPING` delivery fee discounts
+* Minimum order value threshold validation
+* System-wide and per-customer usage limit tracking
+* Single coupon constraint per order (no stacking)
+* Transactional coupon quota deduction and redemption auditing
+* Automatic coupon quota restoration and usage release upon order auto-cancellation or customer cancellation
+* Administrative coupon lifecycle management (create, update limits, toggle status, view metrics)
 
 ### AI Shopping Assistant
 

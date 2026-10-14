@@ -168,6 +168,33 @@ Reserve inventory
 
 **Goal:** View previous orders and their statuses.
 
+### UC-C08 — Apply Coupon
+
+**Actor:** Customer
+
+**Goal:** Apply a promotional coupon to reduce cart subtotal or shipping fee before completing order.
+
+**Flow:**
+
+```text
+Customer
+   |
+   v
+Enter coupon code (or select public coupon)
+   |
+   v
+Submit coupon validation request (with optional address)
+   |
+   v
+Backend validates rules (dates, min order, usage limits)
+   |
+   v
+Calculate discount breakdown (PERCENTAGE, FIXED_AMOUNT, or SHIPPING)
+   |
+   v
+Display updated order total and discount deduction
+```
+
 ## 3. Seller Use Cases
 
 ### UC-S01 — Create Product
@@ -211,6 +238,10 @@ Administrator can view and manage order statuses.
 ### UC-A06 — View Analytics
 
 Administrator can view basic system and sales metrics.
+
+### UC-A07 — Manage Coupons
+
+Administrator can create promotional coupons, configure discount types and constraints, toggle coupon active status, and view usage metrics.
 
 ## 5. AI Use Cases
 

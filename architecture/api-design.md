@@ -12,6 +12,7 @@ The AI Tech Marketplace backend exposes REST APIs for:
 * Cart
 * Orders
 * Inventory
+* Coupons & Promotions
 * AI Shopping Assistant
 * Administration
 
@@ -489,7 +490,56 @@ Example request (`POST /api/v1/ai/chat`):
 
 ---
 
-## 15. Administration APIs
+## 15. Coupon & Promotion APIs
+
+Coupon APIs allow customers to browse public promotions, validate coupon codes against active shopping carts before order placement, and allow administrators to manage promotional campaigns.
+
+For the complete API contract, see [Coupon API Contract](../api/coupons.md).
+
+Summary of endpoints:
+
+| Method | Endpoint | Description | Access |
+| --- | --- | --- | --- |
+| `GET` | `/api/v1/coupons` | List active public coupons | Public / Customer |
+| `POST` | `/api/v1/coupons/validate` | Validate coupon and calculate discount against cart | Authenticated |
+| `GET` | `/api/v1/admin/coupons` | List all platform coupons | Admin |
+| `POST` | `/api/v1/admin/coupons` | Create new promotional coupon | Admin |
+| `PUT` | `/api/v1/admin/coupons/{id}` | Update coupon metadata and limits | Admin |
+| `PATCH` | `/api/v1/admin/coupons/{id}/status` | Toggle coupon status (`ACTIVE` / `INACTIVE`) | Admin |
+
+Example request (`POST /api/v1/coupons/validate`):
+
+```json
+{
+  "couponCode": "TECH2026",
+  "addressId": 10
+}
+```
+
+Example response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "code": "TECH2026",
+    "discountType": "PERCENTAGE",
+    "discountValue": 10.0,
+    "discountAmount": 500000.0,
+    "subtotal": 59980000.0,
+    "shippingFee": 30000.0,
+    "estimatedTotal": 59510000.0,
+    "valid": true,
+    "shippingDiscountPending": false,
+    "message": "Coupon applied successfully"
+  },
+  "message": null
+}
+```
+
+---
+
+## 16. Administration APIs
 
 Administrative endpoints for catalog and user governance require the `ADMIN` role.
 
@@ -502,17 +552,27 @@ Administrative endpoints for catalog and user governance require the `ADMIN` rol
 | `PUT` | `/api/v1/admin/categories/{id}` | Update product category |
 | `GET` | `/api/v1/admin/orders` | View all platform orders |
 | `PUT` | `/api/v1/admin/orders/{id}/status` | Update order fulfillment status |
+| `GET` | `/api/v1/admin/coupons` | View all platform promotional coupons |
+| `POST` | `/api/v1/admin/coupons` | Create promotional coupon campaign |
+| `PUT` | `/api/v1/admin/coupons/{id}` | Update coupon metadata and limits |
+| `PATCH` | `/api/v1/admin/coupons/{id}/status` | Toggle coupon active status |
 
 ---
 
-## 16. Detailed Contract Directory
+## 17. Detailed Contract Directory
 
 The individual API contracts are maintained in dedicated documents:
 
 | Domain | Contract Document | Responsibility |
 | --- | --- | --- |
 | Authentication | [authentication.md](../api/authentication.md) | Register, Login, Refresh token, Logout, Current user |
-| Products | [products.md](../api/products.md) | Catalog, Search, Filtering, Categories, Brands |
-| Shopping Cart | [cart.md](../api/cart.md) | Cart items, Stock validation, Subtotal |
-| Orders | [orders.md](../api/orders.md) | Order creation, Status transitions, Events |
+| Products | [products.md](../api/products.md) | Catalog, Search, Filtering, Categories |
+| Brands | [brands.md](../api/brands.md) | Brand discovery, Brand management |
+| Shopping Cart | [cart.md](../api/cart.md) | Cart items, Guest cart merge, Stock validation, Subtotal |
+| Orders & Payments | [orders.md](../api/orders.md) | Order creation, Payment lifecycle, Webhook callback, Cancellation |
+| Coupons & Promotions | [coupons.md](../api/coupons.md) | Public coupon discovery, Pre-checkout validation, Admin campaign management |
+| Addresses | [addresses.md](../api/addresses.md) | Customer shipping address book, Defaults |
+| Reviews & Ratings | [reviews.md](../api/reviews.md) | Verified purchase reviews, Star ratings, Reputation summary |
 | AI Shopping Assistant | [ai.md](../api/ai.md) | Chat, Recommendation, Comparison, RAG |
+
+

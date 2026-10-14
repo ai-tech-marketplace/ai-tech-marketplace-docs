@@ -124,7 +124,40 @@ Response:
 
 ---
 
-## 7. Cart Rules
+## 7. Merge Guest Cart
+
+When an unauthenticated guest logs in or registers, their local cart items can be merged into the persistent user cart.
+
+```http
+POST /api/v1/cart/merge
+```
+
+Authentication: Required.
+
+Request:
+
+```json
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2
+    },
+    {
+      "productId": 3,
+      "quantity": 1
+    }
+  ]
+}
+```
+
+Response:
+
+HTTP `200 OK` (returns updated `CartResponse`).
+
+---
+
+## 8. Cart Rules
 
 The backend must validate:
 
@@ -134,12 +167,13 @@ The backend must validate:
 * Quantity is greater than zero
 * User owns the cart
 * Quantity does not exceed allowed inventory
+* **Staleness check:** When retrieving cart (`GET /api/v1/cart`), backend validates if any item's price changed or if stock dropped below the cart item's quantity, returning warning flags (`isAvailable`, `priceChanged`) in item response.
 
 The frontend must not determine whether a product is available.
 
 ---
 
-## 8. Cart Price
+## 9. Cart Price
 
 The frontend may display calculated prices.
 
@@ -170,7 +204,7 @@ Final order amount
 
 ---
 
-## 9. Cart Flow
+## 10. Cart Flow
 
 ```text
 Customer
@@ -188,3 +222,4 @@ Backend
    v
 PostgreSQL
 ```
+

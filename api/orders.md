@@ -24,20 +24,22 @@ Request:
 
 ```json
 {
-  "addressId": 10
+  "addressId": 10,
+  "paymentMethod": "VNPAY",
+  "couponCode": "TECH2026"
 }
 ```
 
-The backend obtains the customer's current cart.
+The backend obtains the customer's current cart and validates product availability, active stock, shipping fees, and coupon validity.
 
 The client does not provide:
 
-* Total amount
+* Subtotal or total amount
 * Unit prices
 * Product names
-* Inventory information
+* Inventory calculations
 
-The backend calculates these values.
+The backend calculates all amounts authoritative server-side.
 
 ---
 
@@ -47,37 +49,40 @@ The backend calculates these values.
 POST /orders
       |
       v
-Validate User
+Validate User & Address
       |
       v
-Load Cart
+Load Active Cart
       |
       v
-Load Products
+Validate Product Status & Inventory
       |
       v
-Validate Product Status
+Validate Coupon (if couponCode provided)
       |
       v
-Validate Inventory
+Calculate Subtotal, Shipping Fee, Discounts
       |
       v
-Calculate Total
+Create Order (status=PENDING, paymentStatus=PENDING)
       |
       v
-Create Order
+Create Order Items & Payment Record
       |
       v
-Create Order Items
+Record Coupon Usage (coupon_usages: status=USED) & Increment used_count
       |
       v
-Reserve Inventory
+Reserve Inventory (reserved_quantity += quantity)
       |
       v
-Publish OrderCreated
+Clear Customer Cart Items
       |
       v
-Return Order
+Publish Kafka Event OrderCreated
+      |
+      v
+Return Order Response (with Payment URL if online)
 ```
 
 ---
@@ -91,7 +96,14 @@ Return Order
     "id": 100,
     "orderNumber": "ORD-20260001",
     "status": "PENDING",
-    "totalAmount": 59980000,
+    "paymentMethod": "VNPAY",
+    "paymentStatus": "PENDING",
+    "subtotal": 59980000,
+    "shippingFee": 30000,
+    "discountAmount": 500000,
+    "totalAmount": 59510000,
+    "paymentUrl": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?...",
+    "expiresAt": "2026-10-13T13:45:00Z",
     "items": [
       {
         "productId": 1,
@@ -106,6 +118,7 @@ Return Order
       "recipientName": "John Doe",
       "phone": "0900000000",
       "addressLine": "123 Example Street",
+      "ward": "Dich Vong Hau",
       "district": "Cau Giay",
       "city": "Hanoi"
     }
@@ -160,49 +173,78 @@ The frontend must not determine order state transitions.
 
 ---
 
-## 8. Order Status
+## 8. Order Status and Payment Lifecycle
 
-Initial statuses:
+### 8.1 Status Dimensions
 
-```text
-PENDING
-CONFIRMED
-PROCESSING
-SHIPPED
-DELIVERED
-CANCELLED
-```
+Orders track two orthogonal states:
 
-Expected lifecycle:
+1. **Fulfillment Status:** `PENDING`, `CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`
+2. **Payment Status:** `PENDING`, `PAID`, `FAILED`, `REFUNDED`
+
+### 8.2 Expected Lifecycle
 
 ```text
-PENDING
-   |
-   v
-CONFIRMED
-   |
-   v
-PROCESSING
-   |
-   v
-SHIPPED
-   |
-   v
-DELIVERED
+       PENDING (Fulfillment) / PENDING (Payment)
+          |
+   [Payment Successful]
+          v
+       CONFIRMED (Fulfillment) / PAID (Payment)
+          |
+   [Seller Packages Items]
+          v
+       PROCESSING
+          |
+   [Shipped by Carrier]
+          v
+       SHIPPED
+          |
+   [Customer Received]
+          v
+       DELIVERED
 ```
 
-Cancellation:
+### 8.3 Auto-Expiration (TTL)
 
-```text
-PENDING ──────> CANCELLED
-CONFIRMED ────> CANCELLED
-```
+For orders awaiting online payment, an asynchronous timer or scheduled task checks orders past their `expiresAt` timestamp (default: 15 minutes). If payment is not completed, the order automatically transitions to `CANCELLED`, payment status becomes `FAILED`, reserved stock is released back into available inventory, and any associated coupon redemption is released (`coupon_usages.status = 'RELEASED'`, `released_at = CURRENT_TIMESTAMP`, `coupons.used_count` decremented by 1) per `BR-COUPON-007`.
 
-Actual allowed transitions are enforced by the backend.
+### 8.4 Customer Cancellation Window
+
+Customers may initiate cancellation (`POST /api/v1/orders/{id}/cancel`) only while the order is in `PENDING` or `CONFIRMED` fulfillment state. Upon cancellation, reserved stock is released, and associated coupon quota is restored with `coupon_usages.status = 'RELEASED'` and `coupons.used_count` decremented by 1. Once in `PROCESSING` or `SHIPPED`, cancellations must go through return/refund support workflows.
 
 ---
 
-## 9. Order Events
+## 9. Payment Webhook Callback
+
+Gateway callback endpoint for asynchronous IPN / webhook payment confirmation.
+
+```http
+POST /api/v1/payments/webhook/{gateway}
+```
+
+Example request (`POST /api/v1/payments/webhook/vnpay`):
+
+```json
+{
+  "orderNumber": "ORD-20260001",
+  "gatewayTransactionId": "VNP14892019",
+  "amount": 59510000,
+  "responseCode": "00",
+  "secureHash": "3b29c9a96e1f0e2..."
+}
+```
+
+Backend actions:
+1. Verify cryptographic HMAC signature using gateway secret key.
+2. Verify order amount matches database record.
+3. Update `payments` record (`status = PAID`).
+4. Update `orders` (`payment_status = PAID`, `status = CONFIRMED`).
+5. Publish Kafka domain event `OrderConfirmed`.
+6. Return `{"RspCode": "00", "Message": "Confirm Success"}` to gateway.
+
+---
+
+## 10. Order Events
 
 After important state changes, the backend may publish Kafka events.
 
@@ -232,11 +274,11 @@ Order Service
 
 ---
 
-## 10. Inventory Consistency
+## 11. Inventory Consistency
 
 Inventory operations must be handled transactionally.
 
-The system must prevent:
+The system must prevent overselling:
 
 ```text
 available inventory = 5
@@ -246,9 +288,18 @@ Customer B buys 4
 
 Result:
 8 sold
-5 available
+5 available (INSUFFICIENT!)
 ```
 
-The backend must use appropriate concurrency control.
+The backend must use database-level locking (`SELECT ... FOR UPDATE` or optimistic locking with `@Version`) to guarantee atomic stock reservation:
 
-Redis distributed locking may be introduced where required, but PostgreSQL remains the transactional source of truth.
+```sql
+UPDATE inventory
+SET reserved_quantity = reserved_quantity + :qty,
+    updated_at = CURRENT_TIMESTAMP
+WHERE product_id = :productId
+  AND (quantity - reserved_quantity) >= :qty;
+```
+
+If the update affects 0 rows, the transaction rolls back with a `422 Unprocessable Entity` ("Insufficient stock").
+
