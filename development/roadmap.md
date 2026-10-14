@@ -67,27 +67,29 @@ flowchart LR
 ---
 
 ### Phase 3 — Orders, Checkout & Event Streaming
-**Status:** Planned  
+**Status:** In Progress (Core Checkout, Orders, Addresses & Promotion Engine Completed)  
 **Focus:** Complete transactional checkout, inventory consistency, and asynchronous domain events.
 
-- [ ] Shipping address management APIs (`/api/v1/addresses`).
-- [ ] Transactional checkout pipeline (`POST /api/v1/orders`):
-  - Cart item snapshotting into immutable order items.
-  - Inventory quantity reservation with concurrency protection.
-  - Active cart clearing upon successful checkout.
-- [ ] Order lifecycle management (Pending → Confirmed → Processing → Shipped → Delivered / Cancelled).
+- [x] Shipping address management APIs (`/api/v1/addresses`).
+- [x] Transactional checkout pipeline (`POST /api/v1/orders`):
+  - [x] Cart item snapshotting into immutable order items.
+  - [x] Inventory quantity reservation with concurrency protection.
+  - [x] Active cart clearing upon successful checkout.
+- [x] Order lifecycle & query management:
+  - [x] Order history and detail queries (`GET /api/v1/orders`, `GET /api/v1/orders/{id}`).
+  - [x] Customer order cancellation with inventory and coupon quota rollback (`POST /api/v1/orders/{id}/cancel`).
 - [ ] Redis distributed locking for high-concurrency checkout race conditions.
 - [ ] Apache Kafka integration:
   - Event publishing: `OrderCreated`, `OrderConfirmed`, `OrderCancelled`, `InventoryReserved`, `InventoryReleased`.
   - Asynchronous background consumers for transactional email notifications.
   - Mock payment gateway integration (webhook callbacks).
-- [ ] Promotion & Coupon System:
-  - Flyway migration `V13__create_coupons.sql` (`coupons` with `is_public`, `coupon_usages` with `status` and `released_at`).
-  - Customer coupon discovery API (`GET /api/v1/coupons`).
-  - Pre-checkout validation API (`POST /api/v1/coupons/validate`) with dynamic shipping fee resolution.
-  - Transactional checkout redemption with quota management and audit recording.
-  - Automated coupon quota rollback on order cancellation / 15-minute unpaid timeout (`BR-COUPON-007`).
-  - Administrative coupon management endpoints (`/api/v1/admin/coupons`).
+- [x] Promotion & Coupon System:
+  - [x] Flyway migrations `V8__create_coupons.sql` & `V9__create_orders.sql` (`coupons` with `is_public`, `coupon_usages` with `status` and `released_at`).
+  - [x] Customer coupon discovery API (`GET /api/v1/coupons`).
+  - [x] Pre-checkout validation API (`POST /api/v1/coupons/validate`) with dynamic shipping fee resolution.
+  - [x] Transactional checkout redemption with quota management and audit recording.
+  - [x] Automated coupon quota rollback on order cancellation (`BR-COUPON-007`).
+  - [x] Administrative coupon management endpoints (`/api/v1/admin/coupons`).
 
 ---
 
