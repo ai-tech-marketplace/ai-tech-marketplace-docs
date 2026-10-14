@@ -48,12 +48,13 @@ flowchart LR
 
 #### Backend (`ai-tech-marketplace-backend`):
 - [x] Project initialization with Java 21, Spring Boot 3.4, and PostgreSQL Docker setup.
-- [x] Flyway migrations `V1__init.sql` through `V6__create_carts.sql`.
-- [x] JWT Authentication & User management (Register, Login, Token generation, Password hashing).
-- [x] Categories & Brands management APIs (`GET /api/v1/categories`, `GET /api/v1/brands`).
-- [x] Product catalog management (`GET /api/v1/products`, `GET /api/v1/products/{id}`).
-- [x] Product gallery image management (`/api/v1/admin/products/{id}/images`).
-- [x] Shopping Cart implementation (`/api/v1/cart`, add/update/remove items, ownership check, stock limits).
+- [x] Flyway migrations `V1__init.sql` through `V6__create_carts.sql` (restructured baseline schema).
+- [x] Standardized API envelopes (`ApiResponse<T>`, `ErrorResponse`) and Global Exception Handling.
+- [x] JWT Authentication & User management (`/api/v1/auth`, `CUSTOMER`/`SELLER`/`ADMIN` roles).
+- [x] Categories & Brands management APIs (`GET /api/v1/categories`, `GET /api/v1/brands`, admin CRUD, in-use protection).
+- [x] Public Product catalog management (`GET /api/v1/products`, `GET /api/v1/products/{id}`, filtering, specifications JSONB).
+- [x] Product gallery image management (`/api/v1/products/{id}/images` with primary flag and S3 storage).
+- [x] Shopping Cart implementation (`/api/v1/cart`, add/update/remove items, ownership check, guest cart merge `POST /api/v1/cart/merge`, stock clamping, availability check).
 - [ ] Redis caching for frequently accessed products and category trees.
 
 #### Frontend (`ai-tech-marketplace-frontend`):
