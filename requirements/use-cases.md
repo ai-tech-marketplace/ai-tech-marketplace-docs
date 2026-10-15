@@ -195,6 +195,27 @@ Calculate discount breakdown (PERCENTAGE, FIXED_AMOUNT, or SHIPPING)
 Display updated order total and discount deduction
 ```
 
+### UC-C09 — View Personal Spending Analytics
+
+**Actor:** Customer
+
+**Goal:** Inspect personal technology purchase history, total amount spent, savings gained from discounts/coupons, and category distribution.
+
+**Flow:**
+
+```text
+Customer
+   |
+   v
+Request spending summary (/api/v1/customer/analytics/spending-summary)
+   |
+   v
+Backend aggregates customer order history
+   |
+   v
+Display total spent, promotional savings, and monthly purchase chart
+```
+
 ## 3. Seller Use Cases
 
 ### UC-S01 — Create Product
@@ -212,6 +233,27 @@ Seller updates inventory quantities.
 ### UC-S04 — View Product Orders
 
 Seller views orders containing their products.
+
+### UC-S05 — View Store Performance & Earnings
+
+**Actor:** Seller
+
+**Goal:** Track store gross sales, commission deductions paid to the platform, net earnings, pending escrow settlements, and top-selling products.
+
+**Flow:**
+
+```text
+Seller
+   |
+   v
+Open Seller Analytics Dashboard (/api/v1/seller/analytics/overview)
+   |
+   v
+Backend aggregates store sales and item settlements
+   |
+   v
+Display gross revenue, commission fees, net payout, and top-selling SKUs
+```
 
 ## 4. Administrator Use Cases
 
@@ -235,11 +277,52 @@ Administrator can manage product brands.
 
 Administrator can view and manage order statuses.
 
-### UC-A06 — View Analytics
+### UC-A06 — View Platform Financial Analytics
 
-Administrator can view basic system and sales metrics.
+**Actor:** Administrator
 
-### UC-A07 — Manage Coupons
+**Goal:** Monitor overall marketplace health, Gross Merchandise Value (GMV), net commission earnings, voucher subsidy costs, and merchant leaderboards.
+
+**Flow:**
+
+```text
+Administrator
+   |
+   v
+Access Admin Analytics Dashboard (/api/v1/admin/analytics/overview)
+   |
+   v
+Query financial metrics across selected time range (e.g., 30 days)
+   |
+   v
+Display GMV, platform revenue, order cancellation rates, and top categories
+```
+
+### UC-A07 — Manage Commission Rates
+
+**Actor:** Administrator
+
+**Goal:** Configure, update, or inspect platform commission rates across global, category-specific, and seller-specific scopes.
+
+**Flow:**
+
+```text
+Administrator
+   |
+   v
+Access Commission Settings (/api/v1/admin/commission-settings)
+   |
+   v
+Create or update rate rule (e.g. Set Laptops category to 2.5%, Accessories to 8%)
+   |
+   v
+Backend validates rate range (0%–100%) and uniqueness constraints
+   |
+   v
+Rule becomes immediately active for subsequent checkout transactions
+```
+
+### UC-A08 — Manage Coupons
 
 Administrator can create promotional coupons, configure discount types and constraints, toggle coupon active status, and view usage metrics.
 

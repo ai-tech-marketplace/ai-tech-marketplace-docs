@@ -37,6 +37,12 @@ orders
 order_items
 payments
 
+coupons
+coupon_usages
+
+commission_settings
+seller_order_settlements
+
 reviews
 
 conversations
@@ -61,8 +67,12 @@ users
   ├── orders
   |     |
   |     ├── order_items ── products
+  |     |     |
+  |     |     └── seller_order_settlements (tied to seller)
   |     |
   |     └── payments
+  |
+  ├── seller_order_settlements (as seller)
   |
   ├── reviews ── products
   |
@@ -78,6 +88,8 @@ categories ── products ── brands
                   ├── product_images
                   |
                   └── inventory
+
+commission_settings (global, category, or seller scope)
 ```
 
 
@@ -486,7 +498,54 @@ Index constraint: `(coupon_id, user_id, status)`.
 
 ---
 
-## 23. Indexes
+## 23. commission_settings
+
+Stores marketplace commission fee configurations across global, category, and merchant scopes.
+
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| id | BIGSERIAL | PK | Primary identifier |
+| scope | VARCHAR(30) | NOT NULL | Scope level: `GLOBAL`, `CATEGORY`, `SELLER` |
+| target_id | BIGINT | NULL | Reference to `categories.id` or `users.id` (NULL for `GLOBAL`) |
+| rate | NUMERIC(5,4) | NOT NULL | Commission rate, e.g. `0.0500` for 5% ($0 \le \text{rate} \le 1$) |
+| description | VARCHAR(255) | NULL | Administrative note or contractual rationale |
+| is_active | BOOLEAN | NOT NULL DEFAULT true | Whether rule is actively evaluated |
+| created_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Created timestamp |
+| updated_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Last updated timestamp |
+
+Unique constraint: `(scope, target_id)`.
+Index: `(scope, target_id, is_active)`.
+
+---
+
+## 24. seller_order_settlements
+
+Item-level financial ledger tracking merchant earnings, platform commissions, and escrow payout status.
+
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| id | BIGSERIAL | PK | Primary identifier |
+| order_id | BIGINT | FK orders.id, NOT NULL | Associated customer order |
+| order_item_id | BIGINT | FK order_items.id, NOT NULL | Specific purchased item line |
+| seller_id | BIGINT | FK users.id, NOT NULL | Merchant owning the sold product |
+| item_subtotal | NUMERIC(15,2) | NOT NULL | Item gross sales value (`unit_price * quantity`) |
+| commission_rate | NUMERIC(5,4) | NOT NULL | Snapshot commission rate applied at order time |
+| commission_amount | NUMERIC(15,2) | NOT NULL | Fee retained by marketplace (`item_subtotal * commission_rate`) |
+| platform_discount_subsidized | NUMERIC(15,2) | NOT NULL DEFAULT 0.00 | Platform voucher subsidy compensated to seller |
+| seller_net_amount | NUMERIC(15,2) | NOT NULL | Net merchant earnings (`item_subtotal - commission_amount + subsidy`) |
+| status | VARCHAR(30) | NOT NULL DEFAULT 'PENDING' | Escrow lifecycle: `PENDING`, `SETTLED`, `CANCELLED` |
+| settled_at | TIMESTAMP | NULL | Timestamp when escrow was released to seller balance |
+| created_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Created timestamp |
+| updated_at | TIMESTAMP | NOT NULL DEFAULT CURRENT_TIMESTAMP | Last updated timestamp |
+
+Indexes:
+- `(seller_id, created_at)`
+- `(seller_id, status)`
+- `(order_id)`
+
+---
+
+## 25. Indexes
 
 Initial indexes:
 
@@ -522,6 +581,12 @@ coupons(is_public, status, start_date, end_date)
 coupon_usages(coupon_id, user_id, status)
 coupon_usages(order_id)
 
+commission_settings(scope, target_id, is_active)
+
+seller_order_settlements(seller_id, created_at)
+seller_order_settlements(seller_id, status)
+seller_order_settlements(order_id)
+
 cart_items(cart_id)
 
 addresses(user_id)
@@ -533,13 +598,13 @@ Additional indexes should be introduced based on actual query patterns.
 
 ---
 
-## 24. Database Principles
+## 26. Database Principles
 
 The database follows these principles:
 
 1. PostgreSQL is the source of truth for transactional data.
 2. Foreign keys should protect relational integrity.
-3. Prices in orders are historical snapshots.
+3. Prices, commission rates, and payouts in orders are historical snapshots.
 4. Product specifications use JSONB for flexibility.
 5. Soft deletion should be preferred for important business entities.
 6. Database migrations must be version controlled.

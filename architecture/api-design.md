@@ -556,10 +556,33 @@ Administrative endpoints for catalog and user governance require the `ADMIN` rol
 | `POST` | `/api/v1/admin/coupons` | Create promotional coupon campaign |
 | `PUT` | `/api/v1/admin/coupons/{id}` | Update coupon metadata and limits |
 | `PATCH` | `/api/v1/admin/coupons/{id}/status` | Toggle coupon active status |
+| `GET` | `/api/v1/admin/commission-settings` | List platform commission rules (global, category, seller) |
+| `POST` | `/api/v1/admin/commission-settings` | Create new commission rate rule |
+| `PUT` | `/api/v1/admin/commission-settings/{id}` | Update commission rate or active flag |
+| `DELETE` | `/api/v1/admin/commission-settings/{id}` | Deactivate / remove commission rule |
 
 ---
 
-## 17. Detailed Contract Directory
+## 17. Analytics APIs
+
+Multi-tier financial and performance reporting endpoints for Administrators, Sellers, and Customers:
+
+| Method | Endpoint | Description | Access |
+| --- | --- | --- | --- |
+| `GET` | `/api/v1/admin/analytics/overview` | Platform GMV, net commission revenue, total orders | Admin |
+| `GET` | `/api/v1/admin/analytics/top-sellers` | Top revenue-generating merchants | Admin |
+| `GET` | `/api/v1/admin/analytics/top-categories` | Category GMV contribution and revenue share | Admin |
+| `GET` | `/api/v1/admin/analytics/revenue-chart` | Time-series daily/monthly GMV & commission | Admin |
+| `GET` | `/api/v1/seller/analytics/overview` | Store gross sales, commission paid, net earnings, pending escrow | Seller |
+| `GET` | `/api/v1/seller/analytics/top-products` | Top selling SKUs by units and revenue for shop | Seller |
+| `GET` | `/api/v1/seller/analytics/order-settlements` | Ledger of item settlements and payout release status | Seller |
+| `GET` | `/api/v1/customer/analytics/spending-summary` | Lifetime spend, promotional savings, completed orders | Customer |
+| `GET` | `/api/v1/customer/analytics/category-breakdown` | Customer expenditure by product category | Customer |
+| `GET` | `/api/v1/customer/analytics/monthly-spending` | 6-month or 12-month spending trajectory | Customer |
+
+---
+
+## 18. Detailed Contract Directory
 
 The individual API contracts are maintained in dedicated documents:
 
@@ -572,6 +595,8 @@ The individual API contracts are maintained in dedicated documents:
 | Orders & Payments | [orders.md](../api/orders.md) | Order creation, Payment lifecycle, Webhook callback, Cancellation |
 | Coupons & Promotions | [coupons.md](../api/coupons.md) | Public coupon discovery, Pre-checkout validation, Admin campaign management |
 | Addresses | [addresses.md](../api/addresses.md) | Customer shipping address book, Defaults |
+| Commission Settings | [commission.md](../api/commission.md) | Global, Category, and Seller commission rate configurations |
+| Financial Analytics | [analytics.md](../api/analytics.md) | Admin platform GMV, Seller earnings & escrow, Customer spending summaries |
 | Reviews & Ratings | [reviews.md](../api/reviews.md) | Verified purchase reviews, Star ratings, Reputation summary |
 | AI Shopping Assistant | [ai.md](../api/ai.md) | Chat, Recommendation, Comparison, RAG |
 

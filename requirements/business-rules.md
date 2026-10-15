@@ -372,3 +372,69 @@ If an order is cancelled or times out unpaid:
 
 Once a coupon has been redeemed at least once (`used_count > 0`), its core promotional and financial terms (`code`, `discount_type`, `discount_value`, `max_discount_amount`, `min_order_value`) are immutable to preserve transactional accounting consistency. Administrators may only update metadata (`name`, `description`), extend `end_date`, increase `usage_limit`, or deactivate the coupon (`status = 'INACTIVE'`).
 
+## 14. Commission & Settlement Rules
+
+### BR-COMMISSION-001 — Hierarchical Rate Precedence
+
+The commission rate for any purchased product item is resolved dynamically at checkout using the following strict priority:
+
+$$\text{Level 1: Seller-Specific Rate} \longrightarrow \text{Level 2: Category-Specific Rate} \longrightarrow \text{Level 3: Global Platform Default}$$
+
+1. If an active rule exists where `scope = 'SELLER'` and `target_id = product.seller_id`, its rate is selected.
+2. Else if an active rule exists where `scope = 'CATEGORY'` and `target_id = product.category_id`, its rate is selected.
+3. Else if an active rule exists where `scope = 'GLOBAL'`, its rate is selected.
+4. Fallback default: If no database rules are found, the system applies a hardcoded baseline rate of `5.0%` (`0.0500`).
+
+### BR-COMMISSION-002 — Commission Rate Bounds
+
+A commission rate must always be within the valid percentage range:
+```text
+0.0000 <= rate <= 1.0000 (0% to 100%)
+```
+
+### BR-COMMISSION-003 — Transactional Settlement Snapshot
+
+To prevent retroactive calculation drift when administrators modify commission rates, the resolved commission rate and monetary deductions must be snapshot into a persistent ledger record (`seller_order_settlements`) atomically during order placement:
+
+1. `item_subtotal = unit_price * quantity`
+2. `commission_amount = round(item_subtotal * commission_rate, 2)`
+3. `seller_net_amount = item_subtotal - commission_amount + platform_discount_subsidized`
+
+Historical orders are strictly immutable to future commission configuration changes.
+
+### BR-COMMISSION-004 — Escrow Settlement Lifecycle
+
+Merchant earnings are held in platform escrow to allow for fulfillment and dispute resolution:
+
+1. **Initial Placement:** When an order is placed, settlements are created with `status = 'PENDING'`.
+2. **Order Fulfillment & Completion:** When an order transitions to `DELIVERED` and passes the return/dispute window (e.g., 7 days), the settlement transitions to `status = 'SETTLED'` with `settled_at = CURRENT_TIMESTAMP`, releasing funds to the seller's withdrawable balance.
+3. **Order Cancellation (`BR-ORDER-006`):** If an order is cancelled prior to shipping, settlements transition to `status = 'CANCELLED'`, voiding pending merchant payouts.
+
+### BR-COMMISSION-005 — Configuration Uniqueness
+
+Only one configuration row may exist for any unique `(scope, target_id)` pair. Attempting to create duplicate active configs must return HTTP `409 Conflict`.
+
+## 15. Financial Analytics & Reporting Rules
+
+### BR-ANALYTICS-001 — Financial Metric Definitions
+
+Platform metrics are computed authoritatively as follows:
+- **Gross Merchandise Value (GMV):** $\sum \text{orders.total\_amount}$ for all confirmed, processing, and delivered orders within the time window. Cancelled orders are strictly excluded.
+- **Platform Net Revenue:** $\sum \text{seller\_order\_settlements.commission\_amount} - \sum \text{platform\_discount\_subsidized}$.
+- **Seller Gross Sales:** $\sum \text{seller\_order\_settlements.item\_subtotal}$ for the seller's items.
+- **Seller Net Earnings:** $\sum \text{seller\_order\_settlements.seller\_net\_amount}$ for the seller's items.
+- **Customer Total Spent:** $\sum \text{orders.total\_amount}$ across all successful purchases.
+- **Customer Total Saved:** $\sum \text{orders.discount\_amount}$ from coupons and promotional campaigns.
+
+### BR-ANALYTICS-002 — Time Range Filtering
+
+1. Endpoints accept `period` shortcuts (`7d`, `30d`, `this_month`, `last_month`) or explicit `startDate` and `endDate` boundaries.
+2. If omitted, default query duration is 30 calendar days.
+3. Single queries are limited to a maximum time span of 365 days to prevent resource exhaustion.
+
+### BR-ANALYTICS-003 — Multi-Tenant Data Isolation
+
+1. Administrators (`ROLE_ADMIN`) have global cross-merchant visibility.
+2. Sellers (`ROLE_SELLER`) are strictly isolated to their own shop's metrics (`seller_id = authenticated_user_id`).
+3. Customers (`ROLE_CUSTOMER`) can only inspect their own spending analytics (`user_id = authenticated_user_id`).
+

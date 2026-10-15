@@ -31,6 +31,9 @@ erDiagram
     ORDERS ||--|{ ORDER_ITEMS : "contains"
     ORDERS ||--o{ PAYMENTS : "paid_by"
     PRODUCTS ||--o{ ORDER_ITEMS : "historical_reference"
+    ORDER_ITEMS ||--o| SELLER_ORDER_SETTLEMENTS : "settles"
+    USERS ||--o{ SELLER_ORDER_SETTLEMENTS : "paid_to_seller"
+    ORDERS ||--o{ SELLER_ORDER_SETTLEMENTS : "tracks_settlement"
 
     COUPONS ||--o{ COUPON_USAGES : "tracked_in"
     USERS ||--o{ COUPON_USAGES : "redeems"
@@ -237,6 +240,33 @@ erDiagram
         timestamp used_at
         timestamp released_at
     }
+
+    COMMISSION_SETTINGS {
+        bigint id PK
+        varchar scope
+        bigint target_id
+        numeric rate
+        varchar description
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    SELLER_ORDER_SETTLEMENTS {
+        bigint id PK
+        bigint order_id FK
+        bigint order_item_id FK
+        bigint seller_id FK
+        numeric item_subtotal
+        numeric commission_rate
+        numeric commission_amount
+        numeric platform_discount_subsidized
+        numeric seller_net_amount
+        varchar status
+        timestamp settled_at
+        timestamp created_at
+        timestamp updated_at
+    }
 ```
 
 ---
@@ -250,5 +280,6 @@ erDiagram
 | **Inventory** | `INVENTORY` | - One-to-One with `PRODUCTS`. Available quantity is derived: `quantity - reserved_quantity`. |
 | **Cart & Ordering** | `CARTS`, `CART_ITEMS`, `ORDERS`, `ORDER_ITEMS`, `PAYMENTS` | - A customer has exactly one active `CARTS`.<br/>- Unique composite constraint on `(cart_id, product_id)`.<br/>- `ORDERS` and `ORDER_ITEMS` capture immutable historical snapshots of recipient contact, shipping address, and product unit prices at purchase time.<br/>- `PAYMENTS` tracks gateway transaction states linked 1-to-N with `ORDERS`. |
 | **Promotions & Coupons** | `COUPONS`, `COUPON_USAGES` | - `COUPONS` manages platform campaigns with `PERCENTAGE`, `FIXED_AMOUNT`, and `SHIPPING` rules.<br/>- `COUPON_USAGES` tracks redemption history per order (`order_id` unique constraint enforces 1 coupon per order) and supports audit status (`USED` vs `RELEASED`). |
+| **Commission & Settlements** | `COMMISSION_SETTINGS`, `SELLER_ORDER_SETTLEMENTS` | - `COMMISSION_SETTINGS` configures rates across `GLOBAL`, `CATEGORY`, and `SELLER` scopes with strict priority.<br/>- `SELLER_ORDER_SETTLEMENTS` captures immutable 1-to-1 fee and payout snapshots per order item, managing escrow lifecycle (`PENDING` -> `SETTLED`). |
 | **Reviews & Feedback** | `REVIEWS` | - Customers submit 1-to-N verified reviews for purchased `PRODUCTS` with 1-5 star ratings. |
 | **AI Conversations** | `CONVERSATIONS`, `CONVERSATION_MESSAGES` | - AI chat history linked to `user_id` using UUID keys for stateless session tracking. Messages store conversational roles (`USER`, `ASSISTANT`, `SYSTEM`). |

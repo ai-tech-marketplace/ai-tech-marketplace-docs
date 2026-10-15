@@ -101,6 +101,8 @@ The platform is organized into modular repositories:
   * [Shopping Cart](api/cart.md) (`/api/v1/cart`)
   * [Shipping Addresses](api/addresses.md) (`/api/v1/addresses`)
   * [Coupons & Promotions](api/coupons.md) (`/api/v1/coupons`, `/api/v1/admin/coupons`)
+  * [Commission Settings](api/commission.md) (`/api/v1/admin/commission-settings`)
+  * [Financial Analytics](api/analytics.md) (`/api/v1/{admin,seller,customer}/analytics`)
   * [Orders & Checkout](api/orders.md) (`/api/v1/orders`)
   * [Reviews](api/reviews.md) (`/api/v1/reviews`)
   * [AI Assistant](api/ai.md) (`/api/v1/ai`)

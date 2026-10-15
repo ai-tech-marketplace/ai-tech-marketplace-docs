@@ -75,21 +75,20 @@ V3__create_categories.sql
 ### Applied Migrations (Core Baseline):
 
 * **V1__init.sql**: Base `users`, `roles`, and `user_roles` tables.
-* **V2__create_products.sql**: Core `products` table with basic seller link and pricing checks.
-* **V3__create_categories.sql**: `categories` table.
-* **V4__create_product_categories.sql**: `product_categories` join table.
-* **V5__create_product_images.sql**: `product_images` object storage mapping.
+* **V2__create_categories.sql**: `categories` table with hierarchical slugs and active flags.
+* **V3__create_brands.sql**: `brands` table with hardware manufacturers and slugs.
+* **V4__create_products.sql**: Core `products` table with seller ownership, JSONB specifications, and price checks.
+* **V5__create_product_images.sql**: `product_images` S3 object storage mapping and primary flags.
 * **V6__create_carts.sql**: `carts` and `cart_items` tables with ownership and quantity constraints.
+* **V7__create_addresses.sql**: `addresses` table for customer shipping book and default markers.
+* **V8__create_coupons.sql**: `coupons` table (with `is_public`) and `coupon_usages` audit log table.
+* **V9__create_orders.sql**: `orders`, immutable `order_items`, and `payments` tables with payment states and fee columns.
 
 ### Upcoming Migrations:
 
-* **V7__create_brands.sql**: `brands` table and `brand_id` reference on `products`.
-* **V8__create_addresses.sql**: `addresses` table for customer shipping book.
-* **V9__create_inventory.sql**: Dedicated `inventory` table with `quantity` and `reserved_quantity`.
-* **V10__create_orders.sql**: `orders`, `order_items`, and `payments` tables with payment states and fee columns.
+* **V10__create_commission_and_settlements.sql**: `commission_settings` (global, category, and seller scopes) and `seller_order_settlements` (escrow lifecycle and fee ledger).
 * **V11__create_reviews.sql**: `reviews` table with 1-5 star ratings and verified purchase constraint.
 * **V12__create_ai_conversations.sql**: `conversations` and `conversation_messages` tables.
-* **V13__create_coupons.sql**: `coupons` table (with `is_public`) and `coupon_usages` table (with `status` and `released_at`).
 
 ---
 

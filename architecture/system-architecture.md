@@ -150,6 +150,8 @@ Responsibilities:
 * Cart management
 * Order management
 * Inventory management
+* Commission & settlement management
+* Multi-tier financial analytics (Admin GMV, Seller earnings, Customer spending)
 * Business validation
 * Transaction management
 * REST APIs
