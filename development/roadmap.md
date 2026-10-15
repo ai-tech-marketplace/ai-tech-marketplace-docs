@@ -67,7 +67,7 @@ flowchart LR
 ---
 
 ### Phase 3 — Orders, Checkout & Event Streaming
-**Status:** In Progress (Core Checkout, Orders, Addresses & Promotion Engine Completed)  
+**Status:** Backend Completed (Frontend UI & Payment Gateway Next)  
 **Focus:** Complete transactional checkout, inventory consistency, and asynchronous domain events.
 
 - [x] Shipping address management APIs (`/api/v1/addresses`).
@@ -78,11 +78,11 @@ flowchart LR
 - [x] Order lifecycle & query management:
   - [x] Order history and detail queries (`GET /api/v1/orders`, `GET /api/v1/orders/{id}`).
   - [x] Customer order cancellation with inventory and coupon quota rollback (`POST /api/v1/orders/{id}/cancel`).
-- [ ] Redis distributed locking for high-concurrency checkout race conditions.
-- [ ] Apache Kafka integration:
-  - Event publishing: `OrderCreated`, `OrderConfirmed`, `OrderCancelled`, `InventoryReserved`, `InventoryReleased`.
-  - Asynchronous background consumers for transactional email notifications.
-  - Mock payment gateway integration (webhook callbacks).
+- [x] Redis distributed locking for high-concurrency checkout race conditions (`RedisLockRegistry` outside `@Transactional` boundary).
+- [x] Apache Kafka integration:
+  - [x] Event publishing: `OrderCreatedEvent`, `OrderCancelledEvent` published after transaction commit with `userId` partition key.
+  - [x] Asynchronous background consumers for transactional notification and analytics with DLT error handling.
+  - [ ] Mock payment gateway integration (webhook callbacks).
 - [x] Promotion & Coupon System:
   - [x] Flyway migrations `V8__create_coupons.sql` & `V9__create_orders.sql` (`coupons` with `is_public`, `coupon_usages` with `status` and `released_at`).
   - [x] Customer coupon discovery API (`GET /api/v1/coupons`).
@@ -135,7 +135,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | **M1. Architecture Spec** | Complete system design, schemas, API contracts, diagrams | `ai-tech-marketplace-docs` | **Completed** |
 | **M2. Backend Core** | Auth, Products, Categories, Cart APIs & tests | `ai-tech-marketplace-backend` | **Completed** |
-| **M3. Frontend MVP** | Catalog browsing, Cart UI, Auth flow | `ai-tech-marketplace-frontend` | **Up Next** |
-| **M4. Orders & Kafka** | Checkout transactions, Inventory reservations, Kafka events | `ai-tech-marketplace-backend`, `ai-tech-marketplace-infra` | **Planned** |
+| **M3. Orders & Event Streaming** | Checkout pipeline, Redis locks, Kafka events & consumers | `ai-tech-marketplace-backend` | **Completed** |
+| **M4. Frontend MVP** | Catalog browsing, Cart UI, Auth flow, Checkout | `ai-tech-marketplace-frontend` | **Up Next** |
 | **M5. AI Assistant** | FastAPI RAG service, Semantic search, Chatbot UI | `ai-tech-marketplace-ai`, `ai-tech-marketplace-frontend` | **Planned** |
 | **M6. Launch Prep** | CI/CD pipelines, Seller portal, Admin analytics | All Repositories | **Future** |
